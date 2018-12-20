@@ -1,7 +1,8 @@
 require('babel-polyfill')
 
 const BittrexConnection = require('./connection')
-const Market = require('./market')
+
+import Market from './market'
 
 type MarketName = string
 
