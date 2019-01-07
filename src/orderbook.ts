@@ -1,6 +1,6 @@
 type OrderBookRecord = {
-  rate: number,
-  quantity: number
+    rate: number,
+    quantity: number
 }
 
 class OrderBook {
