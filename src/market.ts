@@ -54,4 +54,16 @@ class BittrexMarket extends Market {
     }
 }
 
-export default Market
+export default function marketFactory (exchangeName: string, marketName: MarketName) {
+    switch (exchangeName) {
+    case 'bittrex':
+        return new BittrexMarket(marketName)
+    default:
+        throw new Error(`No available market for ${exchangeName}`)
+    }
+}
+
+export {
+    marketFactory,
+    MarketName
+}
