@@ -6,11 +6,8 @@ type OrderBookRecord = {
 class OrderBook {
     public store: {[key: string]: OrderBookRecord} = {}
 
-    constructor() {
-        this.onOrderEvent = this.onOrderEvent.bind(this)
-    }
 
-    onOrderEvent(orderEvent: any) {
+    onOrderEvent = (orderEvent: any): void => {
         switch (orderEvent.Type) {
         case 0: // new
         case 2: // update
