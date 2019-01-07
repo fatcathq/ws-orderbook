@@ -4,10 +4,11 @@ import EventEmitter from 'events'
 
 type MarketName = string
 
-class Market extends EventEmitter {
+abstract class Market extends EventEmitter {
     public name: MarketName
     public bids: BidOrderBook
     public asks: AskOrderBook
+    abstract onUpdateExchangeState(update: any): void
 
     constructor(name: MarketName) {
         super()
@@ -37,7 +38,9 @@ class Market extends EventEmitter {
             Buys
         })
     }
+}
 
+class BittrexMarket extends Market {
     onUpdateExchangeState(update: any) {
         update.Sells.forEach(this.asks.onOrderEvent)
         if (update.Sells.length > 0) {
