@@ -1,20 +1,43 @@
-require('babel-polyfill')
-
 import BittrexConnection from './connection'
-import Market from './market'
+import { marketFactory, MarketName } from './market'
 
-type MarketName = string
+abstract class Streamer {
+    protected markets: {[id: string]: any} = {}
+    protected conn: any
+    protected exchange: any
 
-class BittrexOrderBook {
-    public markets: {[id: string]: any} = {}
-    public conn: any
+    abstract setupConn(): void
+    abstract subscribeToMarket(market: MarketName): void
+    abstract getInitialState(market: MarketName): void
 
+    constructor (public readonly exchangeName: string) {}
+
+    public market(market: MarketName) {
+        if (!this.haveMarket(market)) {
+            // create market now
+            this.markets[market] = marketFactory(this.exchangeName, market)
+            this.conn
+                .ready()
+                .then(() => this.getInitialState(market))
+                .then(() => this.subscribeToMarket(market))
+        }
+        return this.markets[market]
+    }
+
+    public haveMarket(market: MarketName): boolean {
+        return this.markets.hasOwnProperty(market)
+    }
+}
+
+class BittrexStreamer extends Streamer {
     constructor () {
+        super('bittrex')
+
         this.setupConn()
     }
 
-    private setupConn () {
-        this.conn = new BittrexConnection
+    setupConn () {
+        this.conn = new BittrexConnection()
 
         this.conn.on('updateExchangeState', (update: any) => {
             const market = update.MarketName
@@ -22,18 +45,6 @@ class BittrexOrderBook {
                 this.markets[market].onUpdateExchangeState(update)
             }
         })
-    }
-
-    public market(market: MarketName) {
-        if (!this.haveMarket(market)) {
-            // create market now
-            this.markets[market] = new Market(market)
-            this.conn
-                .ready()
-                .then(() => this.getInitialState(market))
-                .then(() => this.subscribeToMarket(market))
-        }
-        return this.markets[market]
     }
 
     subscribeToMarket(market: MarketName) {
@@ -47,10 +58,13 @@ class BittrexOrderBook {
                 .then(this.markets[market].onInitialState)
         }
     }
-
-    public haveMarket(market: MarketName): boolean {
-        return this.markets.hasOwnProperty(market)
-    }
 }
 
-export default BittrexOrderBook
+export default function streamerFactory(exchangeName: string) {
+    switch (exchangeName) {
+    case 'bittrex':
+        return new BittrexStreamer()
+    default:
+        throw new Error(`No streamer for ${exchangeName}`)
+    }
+}
