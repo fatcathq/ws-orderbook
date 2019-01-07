@@ -3,11 +3,20 @@ type OrderBookRecord = {
     quantity: number
 }
 
+type OrderEventType = 0 | 1 | 2
+type Rate = number
+type Quantity = number
+
+type OrderEvent = {
+    Type: OrderEventType,
+    Rate: Rate,
+    Quantity: Quantity
+}
+
 class OrderBook {
     public store: {[key: string]: OrderBookRecord} = {}
 
-
-    onOrderEvent = (orderEvent: any): void => {
+    onOrderEvent = (orderEvent: OrderEvent): void => {
         switch (orderEvent.Type) {
         case 0: // new
         case 2: // update
