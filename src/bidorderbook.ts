@@ -1,7 +1,7 @@
 import OrderBook from './orderbook'
 
 class BidOrderBook extends OrderBook {
-    top (limit = 1) {
+    top = (limit = 1): any => {
         const rates = Object.keys(this.store).map(k => this.store[k].rate)
 
         rates.sort((a, b) => b - a)

@@ -8,7 +8,6 @@ class OrderBook {
 
     constructor() {
         this.onOrderEvent = this.onOrderEvent.bind(this)
-        this.top = this.top.bind(this)
     }
 
     onOrderEvent(orderEvent: any) {
@@ -31,8 +30,8 @@ class OrderBook {
         }
     }
 
-    top(limit: number) {
-        console.log('no getTop method defined for this class' + limit)
+    top = (): void => {
+        throw new Error('no getTop method defined for this class')
     }
 }
 
