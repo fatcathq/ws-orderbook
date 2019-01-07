@@ -1,4 +1,4 @@
-import BittrexConnection from './connection'
+import BittrexConnection from './bittrexconnection'
 import { marketFactory, MarketName } from './market'
 
 abstract class Streamer {
