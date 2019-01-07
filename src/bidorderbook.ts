@@ -1,10 +1,6 @@
 import OrderBook from './orderbook'
 
 class BidOrderBook extends OrderBook {
-    constructor () {
-      super()
-    }
-
     top (limit = 1) {
         const rates = Object.keys(this.store).map(k => this.store[k].rate)
 
