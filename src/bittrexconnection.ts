@@ -1,15 +1,16 @@
 const cloudscraper = require('cloudscraper')
 const winston = require('winston')
 const singalR = require('signalr-client')
+const Connection = require('./connection')
 
 const PROTECTED_PAGE = 'https://bittrex.com/Market/Index?MarketName=USDT-BTC'
 
-class BittrexConnection {
+export default class BittrexConnection extends Connection {
     public client: any
-    public awaitingClients: any[] = []
-    public isConnected: boolean = false
 
     constructor() {
+        super()
+
         this.client = new singalR.client(
             'wss://socket.bittrex.com/signalr',     // url
             ['CoreHub'],                            // hubs
@@ -66,21 +67,4 @@ class BittrexConnection {
                 })
         })
     }
-
-    ready() {
-        return new Promise((resolve, reject) => {
-            if (this.isConnected) {
-                resolve()
-                return
-            }
-            else {
-                this.awaitingClients.push({
-                    resolve,
-                    reject
-                })
-            }
-        })
-    }
 }
-
-export default BittrexConnection
