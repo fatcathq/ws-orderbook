@@ -4,10 +4,13 @@
   "description": "Follow the Bittrex orderbook in real time",
   "main": "dist/index.js",
   "dependencies": {
+    "@types/winston": "^2.4.4",
+    "@types/ws": "^6.0.1",
     "babel-polyfill": "^6.26.0",
     "cloudscraper": "^1.4.1",
-    "signalr-client": "^0.0.17",
-    "winston": "^2.3.1"
+    "signalr-client": "0.0.17",
+    "winston": "^2.4.4",
+    "ws": "^6.1.2"
   },
   "devDependencies": {
     "@types/node": "^10.12.18",
