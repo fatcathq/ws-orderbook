@@ -1,7 +1,7 @@
-const cloudscraper = require('cloudscraper')
-const winston = require('winston')
-const singalR = require('signalr-client')
-const Connection = require('./connection')
+const cloudscraper = require('cloudscraper') // TODO: use import
+import winston from 'winston'
+const singalR = require('signalr-client') // TODO: use import
+import Connection from './connection'
 
 const PROTECTED_PAGE = 'https://bittrex.com/Market/Index?MarketName=USDT-BTC'
 
