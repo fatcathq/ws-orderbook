@@ -1,7 +1,7 @@
-import OrderBook from './orderbook'
+import OrderBook, { OrderBookRecord } from './orderbook'
 
 class AskOrderBook extends OrderBook {
-    top = (limit = 1): any => {
+    top = (limit = 1): Array<OrderBookRecord> => {
         const rates = Object.keys(this.store).map(k => this.store[k].rate)
 
         rates.sort((a, b) => a - b)
