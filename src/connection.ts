@@ -1,8 +1,9 @@
-export default abstract class Connection {
+import EventEmitter from 'events'
+
+export default abstract class Connection extends EventEmitter {
     public awaitingClients: any[] = []
     public isConnected: boolean = false
     abstract call(method: string, ...args: any[]): void
-    abstract on(evt: string, cb: (str: any) => void): void
 
     connectionOpened = () => {
         this.isConnected = true

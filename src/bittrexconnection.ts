@@ -30,13 +30,13 @@ export default class BittrexConnection extends Connection {
             }
             this.client.start()
         })
+
+        this.client.on('CoreHub', 'updateExchangeState', (update: any) => {
+            this.emit('updateExchangeState', update)
+        })
     }
 
     // TODO(gtklocker): handle case where client disconnects mid-operation
-    on(evt: string, cb: (str: any) => void) {
-        this.client.on('CoreHub', evt, cb)
-    }
-
     call(method: string, ...args: any[]) {
         const callRepr = `${method}(${args.join(', ')})`
         return new Promise((resolve, reject) => {
