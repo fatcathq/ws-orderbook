@@ -18,20 +18,9 @@ export default class BittrexConnection extends Connection {
             true                                    // don't start automatically
         )
 
-        this.client.serviceHandlers.connected = () => {
-            this.isConnected = true
+        this.client.serviceHandlers.connected = this.connectionOpened
+        this.client.serviceHandlers.connectFailed = this.connectionFailed
 
-            let client
-            while ((client = this.awaitingClients.pop()) !== undefined) {
-                client.resolve()
-            }
-        }
-        this.client.serviceHandlers.connectFailed = () => {
-            let client
-            while ((client = this.awaitingClients.pop()) !== undefined) {
-                client.reject()
-            }
-        }
         cloudscraper.get(PROTECTED_PAGE, (err: any, resp: any) => {
             if (err) {
                 winston.warn('failed to get cloudflare cookie')

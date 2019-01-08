@@ -4,6 +4,24 @@ export default abstract class Connection {
     abstract call(method: string, ...args: any[]): void
     abstract on(evt: string, cb: (str: any) => void): void
 
+    connectionOpened = () => {
+        this.isConnected = true
+
+        let client
+        while ((client = this.awaitingClients.pop()) !== undefined) {
+            client.resolve()
+        }
+    }
+
+    connectionFailed = () => {
+        this.isConnected = false
+
+        let client
+        while ((client = this.awaitingClients.pop()) !== undefined) {
+            client.reject()
+        }
+    }
+
     ready() {
         return new Promise((resolve, reject) => {
             if (this.isConnected) {
