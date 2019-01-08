@@ -1,19 +1,27 @@
-type OrderBookRecord = {
-    rate: number,
-    quantity: number
-}
-
 type OrderEventType = 0 | 1 | 2
 type Rate = number
 type Quantity = number
 
-type OrderEvent = {
-    Type: OrderEventType,
-    Rate: Rate,
-    Quantity: Quantity
+export type OrderBookRecord = {
+    rate: Rate,
+    quantity: Quantity
 }
 
-class OrderBook {
+export type OrderBookState = {
+    asks: Array<OrderBookRecord>,
+    bids: Array<OrderBookRecord>
+}
+
+interface OrderEvent extends OrderBookRecord {
+    type: OrderEventType
+}
+
+export type OrderBookStateUpdate = {
+    asks: Array<OrderEvent>,
+    bids: Array<OrderEvent>
+}
+
+export default class OrderBook {
     public store: {[key: string]: OrderBookRecord} = {}
 
     onOrderEvent = (orderEvent: OrderEvent): void => {
@@ -40,5 +48,3 @@ class OrderBook {
         throw new Error('no getTop method defined for this class')
     }
 }
-
-export default OrderBook
