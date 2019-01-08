@@ -1,4 +1,4 @@
-import { Market, MarketName } from './market'
+import Market, { MarketName } from './market'
 
 export default abstract class Streamer {
     protected markets: {[id: string]: any} = {}

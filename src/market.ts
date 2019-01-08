@@ -3,9 +3,9 @@ import BidOrderBook from './bidorderbook'
 import AskOrderBook from './askorderbook'
 import EventEmitter from 'events'
 
-type MarketName = string
+export type MarketName = string
 
-class Market extends EventEmitter {
+export default class Market extends EventEmitter {
     public name: MarketName
     public bids: BidOrderBook
     public asks: AskOrderBook
@@ -47,9 +47,4 @@ class Market extends EventEmitter {
             this.emit('bidUpdate', this)
         }
     }
-}
-
-export {
-    Market,
-    MarketName
 }
