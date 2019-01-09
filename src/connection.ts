@@ -9,7 +9,7 @@ export default abstract class Connection extends EventEmitter {
     this.isConnected = true
 
     while (this.awaitingClients.length) {
-      this.awaitingClients.pop().client.resolve()
+      this.awaitingClients.pop().resolve()
     }
   }
 
@@ -17,7 +17,7 @@ export default abstract class Connection extends EventEmitter {
     this.isConnected = false
 
     while (this.awaitingClients.length) {
-      this.awaitingClients.pop().client.reject()
+      this.awaitingClients.pop().reject()
     }
   }
 
