@@ -1,5 +1,5 @@
 import cloudscraper from 'cloudscraper'
-import winston from 'winston'
+import logger from './logger'
 import signalR from 'signalr-client'
 import Connection from './connection'
 
@@ -23,7 +23,7 @@ export default class BittrexConnection extends Connection {
 
     cloudscraper.get(PROTECTED_PAGE, (err: any, resp: any) => {
       if (err) {
-        winston.warn('failed to get cloudflare cookie')
+        logger.warn('failed to get cloudflare cookie')
       } else {
         this.client.headers = resp.request.headers
       }
@@ -39,17 +39,17 @@ export default class BittrexConnection extends Connection {
   call (method: string, ...args: any[]): Promise<any> {
     const callRepr = `${method}(${args.join(', ')})`
     return new Promise((resolve, reject) => {
-      winston.debug('Calling', callRepr)
+      logger.debug('Calling', callRepr)
       this.client
                 .call('CoreHub', method, ...args)
                 .done((err: Error | undefined, res: any) => {
                   if (err) {
-                    winston.debug(callRepr, 'returned with error', err)
+                    logger.debug(callRepr, 'returned with error', err)
                     reject(err)
                   }
 
                   if (res) {
-                    winston.debug(callRepr, 'succeeded with ', res)
+                    logger.debug(callRepr, 'succeeded with ', res)
                     resolve(res)
                   }
                 })

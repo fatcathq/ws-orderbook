@@ -1,4 +1,4 @@
-import logger from 'winston'
+import logger from './logger'
 import Streamer from './streamer'
 import PoloniexConnection from './poloniexconnection'
 import { MarketName } from './market'
@@ -7,7 +7,7 @@ const PoloniexMarkets: PoloniexPairChannels = require('../poloniexmarkets.json')
 import validateChannelIds from './poloniexpairsvalidator'
 
 validateChannelIds().catch((err: any) => {
-  logger.error(err)
+  logger.error(err.message, err)
   process.exit(1)
 })
 
