@@ -1,13 +1,14 @@
+import Streamer from './streamer'
 import BittrexStreamer from './bittrexstreamer'
 import PoloniexStreamer from './poloniexstreamer'
 
-export default function streamerFactory(exchangeName: string) {
-    switch (exchangeName) {
+export default function streamerFactory (exchangeName: string): Streamer {
+  switch (exchangeName) {
     case 'bittrex':
-        return new BittrexStreamer()
+      return new BittrexStreamer()
     case 'poloniex':
-        return new PoloniexStreamer()
+      return new PoloniexStreamer()
     default:
-        throw new Error(`No streamer for ${exchangeName}`)
-    }
+      throw new Error(`No streamer for ${exchangeName}`)
+  }
 }
