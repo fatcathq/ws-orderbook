@@ -1,35 +1,27 @@
 {
-  "name": "bittrex-orderbook",
-  "version": "2.0.7",
-  "description": "Follow the Bittrex orderbook in real time",
-  "main": "dist/index.js",
+  "name": "ws-orderbook",
+  "version": "1.0.0",
+  "description": "Follow Bittrex and Poloniex orderbooks in real time",
+  "main": "build/streamer.js",
   "dependencies": {
     "@types/cheerio": "^0.22.10",
     "@types/winston": "^2.4.4",
     "@types/ws": "^6.0.1",
+    "@types/node": "^10.12.18",
     "axios": "^0.18.0",
-    "babel-polyfill": "^6.26.0",
     "cheerio": "^1.0.0-rc.2",
     "cloudscraper": "^1.4.1",
     "signalr-client": "0.0.17",
     "winston": "^2.4.4",
     "ws": "^6.1.2"
   },
-  "devDependencies": {
-    "@types/node": "^10.12.18",
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.3",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-env": "^1.7.0"
-  },
   "scripts": {
-    "build": "rm -rf dist && babel -d dist src",
-    "watch": "rm -rf dist && babel -w -d dist src",
-    "prepare": "npm run build",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "bittrex",
+    "poloniex",
     "orderbook",
     "bitcoin",
     "ethereum",
@@ -38,13 +30,13 @@
   ],
   "author": "gtklocker",
   "license": "MIT",
-  "url": "https://github.com/gtklocker/bittrex-orderbook/issues",
+  "url": "https://gitlab.com/fatcathq/ws-orderbook/issues",
   "email": "kkarantias@gmail.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/gtklocker/bittrex-orderbook.git"
+    "url": "https://gitlab.com/fatcathq/ws-orderbook"
   },
   "files": [
-    "dist"
+    "build"
   ]
 }
