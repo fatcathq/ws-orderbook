@@ -4,7 +4,7 @@ import PoloniexConnection from './poloniexconnection'
 import { MarketName } from './market'
 import { OrderBookState, OrderBookStateUpdate } from './orderbook'
 const PoloniexMarkets: PoloniexPairChannels = require('../poloniexmarkets.json')
-import validateChannelIds from './matchpoloniexpairs'
+import validateChannelIds from './poloniexpairsvalidator'
 
 validateChannelIds().catch((err: any) => {
   logger.error(err)
