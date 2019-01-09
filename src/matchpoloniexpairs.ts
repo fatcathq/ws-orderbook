@@ -1,6 +1,7 @@
 import cheerio from 'cheerio'
-import poloniexmarkets from '../poloniexmarkets.json'
 import axios from 'axios'
+import { PoloniexPairChannels } from './poloniexstreamer'
+const PoloniexMarkets: PoloniexPairChannels = require('../poloniexmarkets.json')
 
 ;(async () => {
     try {
@@ -14,7 +15,7 @@ import axios from 'axios'
 
         pairIdElements.each((index, element) => pairs[$(pairNameElements[index]).text()] = $(element).text())
 
-        if (JSON.stringify(pairs) !== JSON.stringify(poloniexmarkets)) {
+        if (JSON.stringify(pairs) !== JSON.stringify(PoloniexMarkets)) {
             throw new Error('Saved poloniex pairs don\'t match with the documentation.')
         }
     } catch (err) {

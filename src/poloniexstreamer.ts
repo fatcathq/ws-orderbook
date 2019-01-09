@@ -1,9 +1,13 @@
 import logger from 'winston'
 import Streamer from './streamer'
 import PoloniexConnection from './poloniexconnection'
-const PoloniexMarkets = require('../poloniexmarkets') // TODO: use import
 import { MarketName } from './market'
 import { OrderBookState, OrderBookStateUpdate } from './orderbook'
+const PoloniexMarkets: PoloniexPairChannels = require('../poloniexmarkets.json')
+
+export type PoloniexPairChannels = {
+  [index: string]: string
+}
 
 export default class PoloniexStreamer extends Streamer {
     constructor () {
