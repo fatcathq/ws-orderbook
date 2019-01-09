@@ -8,7 +8,7 @@ export default class PoloniexConnection extends Connection {
   private aliveTimeout: NodeJS.Timer | null
 
   constructor () {
-    super()
+    super('poloniex')
 
     this.aliveTimeout = null
 

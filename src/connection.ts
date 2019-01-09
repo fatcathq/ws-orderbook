@@ -5,6 +5,10 @@ export default abstract class Connection extends EventEmitter {
   public isConnected: boolean = false
   abstract call (method: string, ...args: any[]): void
 
+  constructor (public readonly exchangeName: string) {
+    super()
+  }
+
   connectionOpened = () => {
     this.isConnected = true
 

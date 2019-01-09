@@ -9,7 +9,7 @@ export default class BittrexConnection extends Connection {
   public client: any
 
   constructor () {
-    super()
+    super('bittrex')
 
     this.client = new signalR.client(
             'wss://socket.bittrex.com/signalr',     // url
