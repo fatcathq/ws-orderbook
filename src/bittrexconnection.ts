@@ -1,6 +1,6 @@
-const cloudscraper = require('cloudscraper') // TODO: use import
+import cloudscraper from 'cloudscraper'
 import winston from 'winston'
-const singalR = require('signalr-client') // TODO: use import
+import signalR from 'signalr-client'
 import Connection from './connection'
 
 const PROTECTED_PAGE = 'https://bittrex.com/Market/Index?MarketName=USDT-BTC'
@@ -11,7 +11,7 @@ export default class BittrexConnection extends Connection {
     constructor() {
         super()
 
-        this.client = new singalR.client(
+        this.client = new signalR.client(
             'wss://socket.bittrex.com/signalr',     // url
             ['CoreHub'],                            // hubs
             undefined,                              // reconnection timeout
