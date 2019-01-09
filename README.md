@@ -19,3 +19,7 @@ bittrexStreamer.market('BTC-ETH').on('askUpdate', (market) => {
     console.log('ETH asks', market.asks.top(5));
 });
 ```
+
+### Supported Exchanges
+* Bittrex
+* Poloniex
