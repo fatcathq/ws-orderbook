@@ -14,7 +14,7 @@ export default async function validateChannelIds (): Promise<void> {
 
   pairIdElements.each((index, element) => pairs[$(pairNameElements[index]).text()] = +$(element).text())
 
-  if (JSON.stringify(pairs) === JSON.stringify(PoloniexMarkets)) {
+  if (JSON.stringify(pairs) !== JSON.stringify(PoloniexMarkets)) {
     throw new Error('Local poloniex pair ids don\'t match with the documentation.')
   }
 }
