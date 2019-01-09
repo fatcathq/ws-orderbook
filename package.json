@@ -4,9 +4,12 @@
   "description": "Follow the Bittrex orderbook in real time",
   "main": "dist/index.js",
   "dependencies": {
+    "@types/cheerio": "^0.22.10",
     "@types/winston": "^2.4.4",
     "@types/ws": "^6.0.1",
+    "axios": "^0.18.0",
     "babel-polyfill": "^6.26.0",
+    "cheerio": "^1.0.0-rc.2",
     "cloudscraper": "^1.4.1",
     "signalr-client": "0.0.17",
     "winston": "^2.4.4",
