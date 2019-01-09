@@ -5,14 +5,15 @@
   "main": "build/streamer.js",
   "dependencies": {
     "@types/cheerio": "^0.22.10",
-    "@types/winston": "^2.4.4",
-    "@types/ws": "^6.0.1",
     "@types/node": "^10.12.18",
+    "@types/ws": "^6.0.1",
     "axios": "^0.18.0",
     "cheerio": "^1.0.0-rc.2",
     "cloudscraper": "^1.4.1",
+    "fs": "0.0.1-security",
+    "path": "^0.12.7",
     "signalr-client": "0.0.17",
-    "winston": "^2.4.4",
+    "winston": "^3.1.0",
     "ws": "^6.1.2"
   },
   "scripts": {
