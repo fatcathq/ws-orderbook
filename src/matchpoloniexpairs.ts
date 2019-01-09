@@ -3,7 +3,7 @@ import axios from 'axios'
 import { PoloniexPairChannels } from './poloniexstreamer'
 const PoloniexMarkets: PoloniexPairChannels = require('../poloniexmarkets.json')
 
-;(async () => {
+export default async function validateChannelIds (): Promise<void> {
   const { data: page } = await axios.get('https://poloniex.com/support/api')
   const $ = cheerio.load(page)
   const pairsTable = $('.main table:last-child')
@@ -14,10 +14,7 @@ const PoloniexMarkets: PoloniexPairChannels = require('../poloniexmarkets.json')
 
   pairIdElements.each((index, element) => pairs[$(pairNameElements[index]).text()] = +$(element).text())
 
-  if (JSON.stringify(pairs) !== JSON.stringify(PoloniexMarkets)) {
-    throw new Error('Saved poloniex pairs don\'t match with the documentation.')
+  if (JSON.stringify(pairs) === JSON.stringify(PoloniexMarkets)) {
+    throw new Error('Local poloniex pair ids don\'t match with the documentation.')
   }
-})().catch((err: any) => {
-  console.log(err)
-  process.exit(1)
-})
+}
