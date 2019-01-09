@@ -6,7 +6,7 @@ import { OrderBookState, OrderBookStateUpdate } from './orderbook'
 const PoloniexMarkets: PoloniexPairChannels = require('../poloniexmarkets.json')
 
 export type PoloniexPairChannels = {
-  [index: string]: string | undefined
+  [index: string]: number | undefined
 }
 
 export default class PoloniexStreamer extends Streamer {

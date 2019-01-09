@@ -10,9 +10,9 @@ const PoloniexMarkets: PoloniexPairChannels = require('../poloniexmarkets.json')
   const pairIdElements = pairsTable.find('tr > td:nth-child(1)')
   const pairNameElements = pairsTable.find('tr > td:nth-child(2)')
 
-  const pairs: {[index: string]: string} = {}
+  const pairs: PoloniexPairChannels = {}
 
-  pairIdElements.each((index, element) => pairs[$(pairNameElements[index]).text()] = $(element).text())
+  pairIdElements.each((index, element) => pairs[$(pairNameElements[index]).text()] = +$(element).text())
 
   if (JSON.stringify(pairs) !== JSON.stringify(PoloniexMarkets)) {
     throw new Error('Saved poloniex pairs don\'t match with the documentation.')
