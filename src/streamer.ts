@@ -1,3 +1,4 @@
+import logger from './logger'
 import Market, { MarketName } from './market'
 
 export default abstract class Streamer {
@@ -9,16 +10,22 @@ export default abstract class Streamer {
   abstract subscribeToMarket (market: MarketName): void
 
   constructor (public readonly exchangeName: string) {
+    logger.debug(`Setting up connection with ${this.exchangeName}.`)
     this.setupConn()
   }
 
   public market (market: MarketName): Market {
     if (!this.haveMarket(market)) {
-            // create market now
+      logger.debug(`Listen on market ${market} of ${this.exchangeName}`)
+      // create market now
       this.markets[market] = new Market(market)
       this.conn
-                .ready()
-                .then(() => this.subscribeToMarket(market))
+        .ready()
+        .then(() => this.subscribeToMarket(market))
+        .catch((err: any) => {
+          logger.error(err.message, err)
+          process.exit(1)
+        })
     }
     return this.markets[market]
   }

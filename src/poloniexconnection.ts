@@ -1,4 +1,5 @@
 import WebSocket from 'ws'
+import logger from './logger'
 import Connection from './connection'
 
 const HEARTBEAT_TIMEOUT_MS = 1500
@@ -21,6 +22,7 @@ export default class PoloniexConnection extends Connection {
   }
 
   call (method: string, options: any): void {
+    logger.debug(`[POLONIEX]: Sending ${method} command with options: ${JSON.stringify(options)}`)
     this.client.send(JSON.stringify(Object.assign({ command: method }, options)))
   }
 
@@ -34,12 +36,14 @@ export default class PoloniexConnection extends Connection {
   }
 
   private alive (): void {
+    logger.debug('[POLONIEX]: Connection alive')
     if (this.aliveTimeout) {
       clearTimeout(this.aliveTimeout)
     }
 
     this.aliveTimeout = setTimeout(() => {
-            // TODO: Retry connection
+      logger.debug('[POLONIEX]: Connection died')
+      // TODO: Retry connection
       this.connectionFailed()
       throw new Error('WebSocket connection with Poloniex died.')
     }, HEARTBEAT_TIMEOUT_MS)

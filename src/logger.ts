@@ -34,16 +34,10 @@ if (process.env.NODE_ENV !== 'production') {
       simple()
     )
   }))
+}
 
-  if (process.env.DEBUG) {
-    logger.add(new transports.Console({
-      format: combine(
-        colorize(),
-        simple()
-      ),
-      level: 'debug'
-    }))
-  }
+if (process.env.DEBUG) {
+  logger.level = 'debug'
 }
 
 export default logger

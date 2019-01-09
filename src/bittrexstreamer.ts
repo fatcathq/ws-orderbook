@@ -1,3 +1,4 @@
+import logger from './logger'
 import Streamer from './streamer'
 import BittrexConnection from './bittrexconnection'
 import { OrderBookState, OrderBookStateUpdate } from './orderbook'
@@ -48,22 +49,34 @@ export default class BittrexStreamer extends Streamer {
   }
 
   subscribeToMarket (market: MarketName): Promise<void> {
+    logger.debug(`[BITTREX]: Subscribing to market ${market}`)
     return this.getInitialState(market)
-            .then(() => this.conn.call('SubscribeToExchangeDeltas', market))
+      .then(() => this.conn.call('SubscribeToExchangeDeltas', market))
+      .catch((err: any) => {
+        logger.error(err.message, err)
+        process.exit(1)
+      })
   }
 
   getInitialState (market: MarketName): Promise<void> {
+    logger.debug(`[BITTREX]: Querying initial state of ${market} orderbook`)
     if (this.haveMarket(market)) {
       return this.conn
-                .call('QueryExchangeState', market)
-                .then((state: BittrexOrderBookState) => {
-                  const orderBookState: OrderBookState = {
-                    asks: state.Sells.map(formatOrderKeys),
-                    bids: state.Buys.map(formatOrderKeys)
-                  }
-                  this.markets[market].onInitialState(orderBookState)
-                })
+        .call('QueryExchangeState', market)
+        .then((state: BittrexOrderBookState) => {
+          logger.debug(`[BITTREX]: Got initial state of ${market} orderbook`)
+          const orderBookState: OrderBookState = {
+            asks: state.Sells.map(formatOrderKeys),
+            bids: state.Buys.map(formatOrderKeys)
+          }
+          this.markets[market].onInitialState(orderBookState)
+        })
+        .catch((err: any) => {
+          logger.error(err.message, err)
+          process.exit(1)
+        })
     }
+    logger.debug(`[BITTREX]: Haven't created market ${market}`)
     return Promise.reject()
   }
 }

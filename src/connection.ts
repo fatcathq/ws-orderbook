@@ -1,3 +1,4 @@
+import logger from './logger'
 import EventEmitter from 'events'
 
 export default abstract class Connection extends EventEmitter {
@@ -10,6 +11,8 @@ export default abstract class Connection extends EventEmitter {
   }
 
   connectionOpened = () => {
+    logger.debug(`Connection opened with ${this.exchangeName}`)
+    logger.debug(`Waiting clients: ${this.awaitingClients.length}`)
     this.isConnected = true
 
     while (this.awaitingClients.length) {
@@ -18,6 +21,8 @@ export default abstract class Connection extends EventEmitter {
   }
 
   connectionFailed = () => {
+    logger.error(`Connection failed with ${this.exchangeName}`)
+    logger.debug(`Waiting clients: ${this.awaitingClients.length}`)
     this.isConnected = false
 
     while (this.awaitingClients.length) {

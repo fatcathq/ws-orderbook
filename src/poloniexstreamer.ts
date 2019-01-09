@@ -33,7 +33,7 @@ export default class PoloniexStreamer extends Streamer {
       }
 
       if (typeof market === 'undefined') {
-        return logger.error(`Unknown channel: ${channelId}.`)
+        throw new Error(`Unknown channel: ${channelId}.`)
       }
 
       this.onMarketUpdate(market, message[2])
@@ -87,6 +87,7 @@ export default class PoloniexStreamer extends Streamer {
   }
 
   subscribeToMarket (market: MarketName): Promise<void> {
+    logger.debug(`[POLONIEX]: Subscribing to market ${market}`)
     if (typeof PoloniexMarkets[market] === 'undefined') {
       throw new Error(`Unknown Poloniex market ${market}`)
     }
