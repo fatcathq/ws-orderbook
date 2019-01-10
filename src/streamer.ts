@@ -1,9 +1,10 @@
 import logger from './logger'
 import Market, { MarketName } from './market'
+import Connection from './connection'
 
 export default abstract class Streamer {
   protected markets: {[id: string]: any} = {}
-  protected conn: any
+  protected conn!: Connection
 
   abstract setupConn (): void
   abstract subscribeToMarket (market: MarketName): void
