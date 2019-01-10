@@ -26,7 +26,7 @@ export default class PoloniexConnection extends Connection {
     this.client.send(JSON.stringify(Object.assign({ command: method }, options)))
   }
 
-  private onMessage = (messageString: any): void => {
+  private onMessage = (messageString: string): void => {
     this.alive()
     if (messageString === '[1010]') { // Heartbeat
       return
