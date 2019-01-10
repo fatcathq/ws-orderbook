@@ -15,11 +15,17 @@ export type PoloniexPairChannels = {
   [index: string]: number | undefined
 }
 
-type OrderType = 0 | 1
-type Rate = string
-type Quantity = string
-type InitialState = ['i', { currencyPair: string, orderBook: Array<any> }]
-type OrderUpdate = ['o' | 't', OrderType, Rate, Quantity]
+namespace PoloniexConnectionTypes {
+  export type OrderType = 0 | 1
+  export type Rate = string
+  export type Quantity = string
+  export type OrderBookState = [
+    { [index: string]: Quantity }, // asks
+    { [index: string]: Quantity } // bids
+  ]
+  export type InitialState = ['i', { currencyPair: string, orderBook: Array<OrderBookState> }]
+  export type OrderUpdate = ['o' | 't', OrderType, Rate, Quantity]
+}
 
 export default class PoloniexStreamer extends Streamer {
   constructor () {
@@ -52,7 +58,7 @@ export default class PoloniexStreamer extends Streamer {
     })
   }
 
-  private onInitialState (market: MarketName, payload: Array<InitialState>): void {
+  private onInitialState (market: MarketName, payload: Array<PoloniexConnectionTypes.InitialState>): void {
     if (this.haveMarket(market)) {
       const [asks, bids] = payload[0][1].orderBook
       const orderBook: OrderBookState = { asks: [], bids: [] }
@@ -75,7 +81,7 @@ export default class PoloniexStreamer extends Streamer {
     }
   }
 
-  private onOrderUpdate (market: MarketName, payload: Array<OrderUpdate>): void {
+  private onOrderUpdate (market: MarketName, payload: Array<PoloniexConnectionTypes.OrderUpdate>): void {
     if (this.haveMarket(market)) {
       const orderBookUpdate: OrderBookStateUpdate = { asks: [], bids: [] }
 
