@@ -21,9 +21,10 @@ export default class PoloniexConnection extends Connection {
     this.client.on('message', this.onMessage)
   }
 
-  call (method: string, options: any): void {
+  call (method: string, options: any): Promise<void> {
     logger.debug(`[POLONIEX]: Sending ${method} command with options: ${JSON.stringify(options)}`)
     this.client.send(JSON.stringify(Object.assign({ command: method }, options)))
+    return Promise.resolve()
   }
 
   private onMessage = (messageString: string): void => {
