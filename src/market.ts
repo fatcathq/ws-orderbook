@@ -1,4 +1,4 @@
-import { OrderBookState, OrderBookStateUpdate } from './orderbook'
+import { OrderBookState, OrderBookStateUpdate, OrderBookRecord, OrderEvent } from './orderbook'
 import BidOrderBook from './bidorderbook'
 import AskOrderBook from './askorderbook'
 import EventEmitter from 'events'
@@ -22,7 +22,7 @@ export default class Market extends EventEmitter {
     let { asks, bids } = state
 
         // type 0 means new order
-    const addTypeZero = (order: any) => {
+    const addTypeZero = (order: OrderBookRecord): OrderEvent => {
       return {
         type: 0,
         ...order

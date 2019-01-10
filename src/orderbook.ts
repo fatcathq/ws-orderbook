@@ -12,7 +12,7 @@ export type OrderBookState = {
   bids: Array<OrderBookRecord>
 }
 
-interface OrderEvent extends OrderBookRecord {
+export interface OrderEvent extends OrderBookRecord {
   type: OrderEventType
 }
 
