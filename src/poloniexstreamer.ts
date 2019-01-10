@@ -15,6 +15,12 @@ export type PoloniexPairChannels = {
   [index: string]: number | undefined
 }
 
+type OrderType = 0 | 1
+type Rate = string
+type Quantity = string
+type InitialState = ['i', { currencyPair: string, orderBook: Array<any> }]
+type OrderUpdate = ['o' | 't', OrderType, Rate, Quantity]
+
 export default class PoloniexStreamer extends Streamer {
   constructor () {
     super('poloniex')
