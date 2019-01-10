@@ -4,7 +4,6 @@ import Market, { MarketName } from './market'
 export default abstract class Streamer {
   protected markets: {[id: string]: any} = {}
   protected conn: any
-  protected exchange: any
 
   abstract setupConn (): void
   abstract subscribeToMarket (market: MarketName): void
