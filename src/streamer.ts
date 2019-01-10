@@ -3,7 +3,7 @@ import Market, { MarketName } from './market'
 import Connection from './connection'
 
 export default abstract class Streamer {
-  protected markets: {[id: string]: any} = {}
+  protected markets: {[id: string]: Market} = {}
   protected conn!: Connection
 
   abstract setupConn (): void
