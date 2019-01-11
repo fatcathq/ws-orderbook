@@ -27,6 +27,30 @@ namespace PoloniexConnectionTypes {
   export type OrderUpdate = ['o' | 't', OrderType, Rate, Quantity]
 }
 
+const commonCoins: {[index: string]: string} = {
+  'BSV': 'BCHSV'
+}
+
+function standardPairToPoloniexPair (pair: MarketName): MarketName {
+  const [ asset, currency ] = pair.split('/')
+
+  return `${commonCoins[currency] || currency}_${commonCoins[asset] || asset}`
+}
+
+function poloniexPairToStandardPair (pair: MarketName): MarketName {
+  let [ currency, asset ] = pair.split('_')
+
+  for (const coin in commonCoins) {
+    if (commonCoins[coin] === currency) {
+      currency = coin
+    } else if (commonCoins[coin] === asset) {
+      asset = coin
+    }
+  }
+
+  return `${asset}/${currency}`
+}
+
 export default class PoloniexStreamer extends Streamer {
   constructor () {
     super('poloniex')
@@ -48,8 +72,7 @@ export default class PoloniexStreamer extends Streamer {
         throw new Error(`Unknown channel: ${channelId}.`)
       }
 
-      const [ currency, asset ] = poloniexMarket.split('_')
-      const market = `${asset}/${currency}`
+      const market = poloniexPairToStandardPair(poloniexMarket)
 
       if (message[2][0][0] === 'i') {
         this.onInitialState(market, message[2])
@@ -109,9 +132,8 @@ export default class PoloniexStreamer extends Streamer {
   }
 
   subscribeToMarket (market: MarketName): Promise<void> {
-    const [ asset, currency ] = market.split('/')
+    const poloniexMarket = standardPairToPoloniexPair(market)
 
-    const poloniexMarket = `${currency}_${asset}`
     logger.debug(`[POLONIEX]: Subscribing to market ${poloniexMarket}`)
     if (typeof PoloniexMarkets[poloniexMarket] === 'undefined') {
       throw new Error(`Unknown Poloniex market ${poloniexMarket}`)
