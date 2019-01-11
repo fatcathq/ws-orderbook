@@ -37,16 +37,19 @@ export default class PoloniexStreamer extends Streamer {
 
     this.conn.on('updateExchangeState', (message: any) => {
       const channelId = message[0]
-      let market
+      let poloniexMarket
       for (const candidateMarket in PoloniexMarkets) {
         if (PoloniexMarkets[candidateMarket] === channelId) {
-          market = candidateMarket
+          poloniexMarket = candidateMarket
         }
       }
 
-      if (typeof market === 'undefined') {
+      if (typeof poloniexMarket === 'undefined') {
         throw new Error(`Unknown channel: ${channelId}.`)
       }
+
+      const [ currency, asset ] = poloniexMarket.split('_')
+      const market = `${asset}/${currency}`
 
       if (message[2][0][0] === 'i') {
         this.onInitialState(market, message[2])
@@ -106,11 +109,14 @@ export default class PoloniexStreamer extends Streamer {
   }
 
   subscribeToMarket (market: MarketName): Promise<void> {
-    logger.debug(`[POLONIEX]: Subscribing to market ${market}`)
-    if (typeof PoloniexMarkets[market] === 'undefined') {
-      throw new Error(`Unknown Poloniex market ${market}`)
+    const [ asset, currency ] = market.split('/')
+
+    const poloniexMarket = `${currency}_${asset}`
+    logger.debug(`[POLONIEX]: Subscribing to market ${poloniexMarket}`)
+    if (typeof PoloniexMarkets[poloniexMarket] === 'undefined') {
+      throw new Error(`Unknown Poloniex market ${poloniexMarket}`)
     }
 
-    return this.conn.call('subscribe', { channel: PoloniexMarkets[market] })
+    return this.conn.call('subscribe', { channel: PoloniexMarkets[poloniexMarket] })
   }
 }
