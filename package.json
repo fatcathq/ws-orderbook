@@ -2,7 +2,7 @@
   "name": "ws-orderbook",
   "version": "1.0.0",
   "description": "Follow Bittrex and Poloniex orderbooks in real time",
-  "main": "built/streamer.js",
+  "main": "built/streamer-factory.js",
   "types": "ws-orderbook.d.ts",
   "dependencies": {
     "@types/cheerio": "^0.22.10",
