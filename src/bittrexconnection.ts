@@ -40,17 +40,17 @@ export default class BittrexConnection extends Connection {
   call (method: string, ...args: any[]): Promise<any> {
     const callRepr = `${method}(${args.join(', ')})`
     return new Promise((resolve, reject) => {
-      logger.debug(`Calling ${callRepr}`)
+      logger.debug(`[BITTREX]: Calling ${callRepr}`)
       this.client
                 .call('CoreHub', method, ...args)
                 .done((err: Error | undefined, res: any) => {
                   if (err) {
-                    logger.debug(`${callRepr} returned with error ${err}`)
+                    logger.debug(`[BITTREX]: ${callRepr} returned with error ${err}`)
                     reject(err)
                   }
 
                   if (res) {
-                    logger.debug(`${callRepr} succeeded with ${res}`)
+                    logger.debug(`[BITTREX]: ${callRepr} succeeded with ${res}`)
                     resolve(res)
                   }
                 })
