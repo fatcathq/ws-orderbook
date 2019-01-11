@@ -17,10 +17,10 @@
     "ws": "^6.1.2"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p .",
     "lint": "tslint -p .",
     "allchecks": "npm run build && npm run lint",
-    "postinstall": "npm run build",
+    "postinstall": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
