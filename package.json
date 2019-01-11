@@ -20,7 +20,7 @@
     "build": "tsc -p .",
     "lint": "tslint -p .",
     "allchecks": "npm run build && npm run lint",
-    "postinstall": "tsc",
+    "postinstall": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -40,9 +40,6 @@
     "type": "git",
     "url": "https://gitlab.com/fatcathq/ws-orderbook"
   },
-  "files": [
-    "build"
-  ],
   "devDependencies": {
     "tslint": "^5.12.0",
     "tslint-config-standard": "^8.0.1",
