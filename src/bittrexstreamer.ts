@@ -36,7 +36,9 @@ export default class BittrexStreamer extends Streamer {
     this.conn = new BittrexConnection()
 
     this.conn.on('updateExchangeState', (update: BittrexOrderBookStateUpdate) => {
-      const market = update.MarketName
+      const [ currency, asset ] = update.MarketName.split('-')
+      const market = `${asset}/${currency}`
+
       if (this.haveMarket(market)) {
         const orderBookUpdate: OrderBookStateUpdate = {
           asks: update.Sells.map(formatOrderUpdateKeys),
@@ -49,9 +51,12 @@ export default class BittrexStreamer extends Streamer {
   }
 
   subscribeToMarket (market: MarketName): Promise<void> {
-    logger.debug(`[BITTREX]: Subscribing to market ${market}`)
+    const [ asset, currency ] = market.split('/')
+    const bittrexMarket = `${currency}-${asset}`
+
+    logger.debug(`[BITTREX]: Subscribing to market ${bittrexMarket}`)
     return this.getInitialState(market)
-      .then(() => this.conn.call('SubscribeToExchangeDeltas', market))
+      .then(() => this.conn.call('SubscribeToExchangeDeltas', bittrexMarket))
       .catch((err: any) => {
         logger.error(err.message, err)
         process.exit(1)
@@ -59,12 +64,15 @@ export default class BittrexStreamer extends Streamer {
   }
 
   getInitialState (market: MarketName): Promise<void> {
-    logger.debug(`[BITTREX]: Querying initial state of ${market} orderbook`)
+    const [ asset, currency ] = market.split('/')
+    const bittrexMarket = `${currency}-${asset}`
+
+    logger.debug(`[BITTREX]: Querying initial state of ${bittrexMarket} orderbook`)
     if (this.haveMarket(market)) {
       return this.conn
-        .call('QueryExchangeState', market)
+        .call('QueryExchangeState', bittrexMarket)
         .then((state: BittrexOrderBookState) => {
-          logger.debug(`[BITTREX]: Got initial state of ${market} orderbook`)
+          logger.debug(`[BITTREX]: Got initial state of ${bittrexMarket} orderbook`)
           const orderBookState: OrderBookState = {
             asks: state.Sells.map(formatOrderKeys),
             bids: state.Buys.map(formatOrderKeys)
