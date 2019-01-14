@@ -2,7 +2,7 @@ import WebSocket from 'ws'
 import logger from './logger'
 import Connection from './connection'
 
-const HEARTBEAT_TIMEOUT_MS = 1500
+const HEARTBEAT_TIMEOUT_MS = 3000
 
 export default class PoloniexConnection extends Connection {
   private client: WebSocket
