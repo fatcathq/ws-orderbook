@@ -11,6 +11,7 @@
     "axios": "^0.18.0",
     "cheerio": "^1.0.0-rc.2",
     "cloudscraper": "^1.4.1",
+    "delay": "^4.1.0",
     "fs": "0.0.1-security",
     "path": "^0.12.7",
     "signalr-client": "0.0.17",
