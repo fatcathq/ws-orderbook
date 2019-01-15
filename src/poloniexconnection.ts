@@ -64,10 +64,9 @@ export default class PoloniexConnection extends Connection {
     }
 
     this.aliveTimeout = setTimeout(() => {
-      logger.debug('[POLONIEX]: Connection died')
-      // TODO: Retry connection
-      this.connectionFailed()
-      throw new Error('WebSocket connection with Poloniex died.')
+      logger.warn('[POLONIEX]: Connection died')
+      this.isConnected = false
+      this.connect()
     }, HEARTBEAT_TIMEOUT_MS)
   }
 }
