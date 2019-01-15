@@ -1,13 +1,16 @@
 import WebSocket from 'ws'
 import logger from './logger'
 import Connection from './connection'
+import delay from 'delay'
 
 const HEARTBEAT_TIMEOUT_MS = 1500
+const RECONNECT_DELAY = 100
 
 export default class PoloniexConnection extends Connection {
   private client!: WebSocket
   private aliveTimeout: NodeJS.Timer | null
   private subscriptions: Set<number> = new Set()
+  private RECONNECT_THROTTLE: number = RECONNECT_DELAY
 
   constructor () {
     super('poloniex')
@@ -59,14 +62,19 @@ export default class PoloniexConnection extends Connection {
     this.emit('updateExchangeState', JSON.parse(messageString))
   }
 
-  private connectionDied = (): void => {
-    logger.warn('[POLONIEX]: Connection died')
+  private connectionDied = async (): Promise<void> => {
+    logger.warn(`[POLONIEX]: Connection died. Reconnecting in ${this.RECONNECT_THROTTLE / 1000} seconds`)
     this.isConnected = false
+
+    await delay(this.RECONNECT_THROTTLE)
+    this.RECONNECT_THROTTLE *= 2
+
     this.connect()
   }
 
   private alive (): void {
     logger.debug('[POLONIEX]: Connection alive')
+    this.RECONNECT_THROTTLE = RECONNECT_DELAY
     if (this.aliveTimeout) {
       clearTimeout(this.aliveTimeout)
     }
