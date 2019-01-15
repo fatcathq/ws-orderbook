@@ -17,6 +17,12 @@ export default class PoloniexConnection extends Connection {
   }
 
   private connect (): void {
+    if (this.client) {
+      logger.debug('[POLONIEX]: Closing previous connection')
+      this.client.off('message', this.onMessage)
+      this.client.close()
+    }
+
     logger.debug('[POLONIEX]: Openning new connection')
     this.client = new WebSocket('wss://api2.poloniex.com')
     this.client.on('open', () => {
