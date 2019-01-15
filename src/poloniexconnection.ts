@@ -34,6 +34,7 @@ export default class PoloniexConnection extends Connection {
   private onMessage = (messageString: string): void => {
     this.alive()
     if (messageString === '[1010]') { // Heartbeat
+      logger.debug('[POLONIEX]: Heartbeat')
       return
     }
 
