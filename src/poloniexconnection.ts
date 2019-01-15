@@ -7,6 +7,7 @@ const HEARTBEAT_TIMEOUT_MS = 3000
 export default class PoloniexConnection extends Connection {
   private client: WebSocket
   private aliveTimeout: NodeJS.Timer | null
+  private subscriptions: Set<number> = new Set()
 
   constructor () {
     super('poloniex')
@@ -23,6 +24,9 @@ export default class PoloniexConnection extends Connection {
 
   call (method: string, options: any): Promise<void> {
     logger.debug(`[POLONIEX]: Sending ${method} command with options: ${JSON.stringify(options)}`)
+    if (method === 'subscribe') {
+      this.subscriptions.add(options.channel)
+    }
     this.client.send(JSON.stringify(Object.assign({ command: method }, options)))
     return Promise.resolve()
   }
