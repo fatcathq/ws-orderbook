@@ -5,7 +5,7 @@ import Connection from './connection'
 const HEARTBEAT_TIMEOUT_MS = 3000
 
 export default class PoloniexConnection extends Connection {
-  private client: WebSocket
+  private client!: WebSocket
   private aliveTimeout: NodeJS.Timer | null
   private subscriptions: Set<number> = new Set()
 
@@ -13,7 +13,11 @@ export default class PoloniexConnection extends Connection {
     super('poloniex')
 
     this.aliveTimeout = null
+    this.connect()
+  }
 
+  private connect (): void {
+    logger.debug('[POLONIEX]: Openning new connection')
     this.client = new WebSocket('wss://api2.poloniex.com')
     this.client.on('open', () => {
       this.alive()
