@@ -26,6 +26,12 @@ export default class PoloniexConnection extends Connection {
     logger.debug('[POLONIEX]: Openning new connection')
     this.client = new WebSocket('wss://api2.poloniex.com')
     this.client.on('open', () => {
+      logger.debug('[POLONIEX]: Connection opened')
+      this.subscriptions.forEach(channel => {
+        logger.debug(`[POLONIEX]: Resubscribing to ${channel}`)
+        this.call('subscribe', { channel })
+      })
+
       this.alive()
       this.connectionOpened()
     })
