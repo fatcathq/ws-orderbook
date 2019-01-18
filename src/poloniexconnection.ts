@@ -19,14 +19,21 @@ export default class PoloniexConnection extends Connection {
     this.connect()
   }
 
-  private connect (): void {
+  private disconnect (): void {
     if (this.client) {
       logger.debug('[POLONIEX]: Closing previous connection')
-      this.client.off('message', this.onMessage)
-      this.client.off('error', this.connectionDied)
-      this.client.close()
-    }
 
+      try {
+        this.client.off('message', this.onMessage)
+        this.client.off('error', this.connectionDied)
+        this.client.close()
+      } catch (err) {
+        logger.debug(err.message, err)
+      }
+    }
+  }
+
+  private connect (): void {
     logger.debug('[POLONIEX]: Openning new connection')
     this.client = new WebSocket('wss://api2.poloniex.com')
     this.client.on('error', this.connectionDied)
@@ -65,6 +72,7 @@ export default class PoloniexConnection extends Connection {
   private connectionDied = async (): Promise<void> => {
     logger.warn(`[POLONIEX]: Connection died. Reconnecting in ${this.RECONNECT_THROTTLE / 1000} seconds`)
     this.isConnected = false
+    this.disconnect()
 
     await delay(this.RECONNECT_THROTTLE)
     this.RECONNECT_THROTTLE *= 2
