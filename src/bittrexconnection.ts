@@ -12,11 +12,11 @@ export default class BittrexConnection extends Connection {
     super('bittrex')
 
     this.client = new signalR.client(
-            'wss://socket.bittrex.com/signalr',     // url
-            ['CoreHub'],                            // hubs
-            undefined,                              // reconnection timeout
-            true                                    // don't start automatically
-        )
+      'wss://socket.bittrex.com/signalr',     // url
+      ['CoreHub'],                            // hubs
+      undefined,                              // reconnection timeout
+      true                                    // don't start automatically
+    )
 
     this.client.serviceHandlers.connected = this.connectionOpened
     this.client.serviceHandlers.connectFailed = this.connectionFailed
@@ -36,24 +36,24 @@ export default class BittrexConnection extends Connection {
     })
   }
 
-    // TODO(gtklocker): handle case where client disconnects mid-operation
+  // TODO(gtklocker): handle case where client disconnects mid-operation
   call (method: string, ...args: any[]): Promise<any> {
     const callRepr = `${method}(${args.join(', ')})`
     return new Promise((resolve, reject) => {
       logger.debug(`[BITTREX]: Calling ${callRepr}`)
       this.client
-                .call('CoreHub', method, ...args)
-                .done((err: Error | undefined, res: any) => {
-                  if (err) {
-                    logger.debug(`[BITTREX]: ${callRepr} returned with error ${err}`)
-                    reject(err)
-                  }
+        .call('CoreHub', method, ...args)
+        .done((err: Error | undefined, res: any) => {
+          if (err) {
+            logger.debug(`[BITTREX]: ${callRepr} returned with error ${err}`)
+            reject(err)
+          }
 
-                  if (res) {
-                    logger.debug(`[BITTREX]: ${callRepr} succeeded with ${res}`)
-                    resolve(res)
-                  }
-                })
+          if (res) {
+            logger.debug(`[BITTREX]: ${callRepr} succeeded with ${res}`)
+            resolve(res)
+          }
+        })
     })
   }
 }
