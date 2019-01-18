@@ -21,7 +21,10 @@ export default abstract class Streamer {
       this.markets[market] = new Market(market)
       this.conn
         .ready()
-        .then(() => this.subscribeToMarket(market))
+        .then(() => {
+          this.conn.on('connectionError', this.markets[market].voidOrderBook)
+          return this.subscribeToMarket(market)
+        })
         .catch((err: any) => {
           logger.error(err.message, err)
           process.exit(1)
