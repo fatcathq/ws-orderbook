@@ -36,6 +36,14 @@ export default class Market extends EventEmitter {
     this.onUpdateExchangeState(update)
   }
 
+  voidOrderBook = (): void => {
+    this.asks.void()
+    this.bids.void()
+
+    this.emit('askUpdate', this)
+    this.emit('bidUpdate', this)
+  }
+
   onUpdateExchangeState (update: OrderBookStateUpdate): void {
     update.asks.forEach(this.asks.onOrderEvent)
     if (update.asks.length > 0) {

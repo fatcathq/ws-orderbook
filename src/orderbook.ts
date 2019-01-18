@@ -44,6 +44,10 @@ export default class OrderBook {
     }
   }
 
+  void (): void {
+    this.store = {}
+  }
+
   top = (): void => {
     throw new Error('no getTop method defined for this class')
   }
