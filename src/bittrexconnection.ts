@@ -2,11 +2,15 @@ import cloudscraper from 'cloudscraper'
 import logger from './logger'
 import signalR from 'signalr-client'
 import Connection from './connection'
+import delay from 'delay'
 
 const PROTECTED_PAGE = 'https://bittrex.com/Market/Index?MarketName=USDT-BTC'
 
+const HEARTBEAT_TIMEOUT_MS = 1000
+
 export default class BittrexConnection extends Connection {
   public client: any
+  private aliveTimeout: NodeJS.Timer | null
 
   constructor () {
     super('bittrex')
@@ -18,7 +22,11 @@ export default class BittrexConnection extends Connection {
       true                                    // don't start automatically
     )
 
-    this.client.serviceHandlers.connected = this.connectionOpened
+    this.client.serviceHandlers.connected = () => {
+      this.ping()
+      this.connectionOpened()
+    }
+
     this.client.serviceHandlers.connectFailed = this.connectionFailed
 
     cloudscraper.get(PROTECTED_PAGE, (err: any, resp: any) => {
@@ -34,6 +42,37 @@ export default class BittrexConnection extends Connection {
       logger.debug('[BITTREX]: Received update')
       this.emit('updateExchangeState', update)
     })
+
+    this.aliveTimeout = null
+  }
+
+  private ping (): void {
+    logger.debug('[BITTREX]: Sending ping')
+    this.client.call('CoreHub', 'SubscribeToExchangeDeltas', 'BTC-ETH')
+      .done(async (err: Error | undefined, res: any) => {
+        logger.debug('[BITTREX]: Got ping reply')
+        if (res) {
+          this.alive()
+          await delay(1000)
+          this.ping()
+        } else if (err) {
+          logger.error(err)
+        }
+      })
+  }
+
+  private alive (): void {
+    logger.debug('[BITTREX]: Connection alive')
+    if (this.aliveTimeout) {
+      clearTimeout(this.aliveTimeout)
+    }
+
+    this.aliveTimeout = setTimeout(this.connectionDied, HEARTBEAT_TIMEOUT_MS)
+  }
+
+  private connectionDied = (): void => {
+    logger.debug('[BITTREX]: Connection died')
+    this.emit('connectionError')
   }
 
   // TODO(gtklocker): handle case where client disconnects mid-operation
