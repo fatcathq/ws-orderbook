@@ -4,9 +4,10 @@ import { PoloniexPairChannels } from './poloniexstreamer'
 const PoloniexMarkets: PoloniexPairChannels = require('../poloniexmarkets.json')
 
 export default async function validateChannelIds (): Promise<void> {
-  const { data: page } = await axios.get('https://poloniex.com/support/api')
+  const { data: page } = await axios.get('https://docs.poloniex.com')
   const $ = cheerio.load(page)
-  const pairsTable = $('.main table:last-child')
+  const tables = $('.content table')
+  const pairsTable = $(tables[tables.length - 1])
   const pairIdElements = pairsTable.find('tr > td:nth-child(1)')
   const pairNameElements = pairsTable.find('tr > td:nth-child(2)')
 
