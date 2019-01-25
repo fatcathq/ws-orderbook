@@ -6,7 +6,7 @@ import delay from 'delay'
 
 const PROTECTED_PAGE = 'https://bittrex.com/Market/Index?MarketName=USDT-BTC'
 
-const HEARTBEAT_TIMEOUT_MS = 1000
+const HEARTBEAT_TIMEOUT_MS = 2000
 
 export default class BittrexConnection extends Connection {
   public client: any
@@ -53,7 +53,7 @@ export default class BittrexConnection extends Connection {
         logger.debug('[BITTREX]: Got ping reply')
         if (res) {
           this.alive()
-          await delay(1000)
+          await delay(500)
           this.ping()
         } else if (err) {
           logger.error(err)
