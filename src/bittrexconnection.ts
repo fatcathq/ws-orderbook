@@ -72,7 +72,7 @@ export default class BittrexConnection extends Connection {
 
   private connectionDied = (): void => {
     logger.debug('[BITTREX]: Connection died')
-    this.emit('connectionError')
+    // this.emit('connectionError')
   }
 
   // TODO(gtklocker): handle case where client disconnects mid-operation
