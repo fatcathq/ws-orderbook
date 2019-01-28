@@ -75,6 +75,10 @@ export default class BittrexConnection extends Connection {
     // this.emit('connectionError')
   }
 
+  subscribe (pair: string): Promise<void> {
+    return this.call('SubscribeToExchangeDeltas', pair)
+  }
+
   // TODO(gtklocker): handle case where client disconnects mid-operation
   call (method: string, ...args: any[]): Promise<any> {
     const callRepr = `${method}(${args.join(', ')})`

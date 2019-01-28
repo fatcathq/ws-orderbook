@@ -56,7 +56,7 @@ export default class BittrexStreamer extends Streamer {
 
     logger.debug(`[BITTREX]: Subscribing to market ${bittrexMarket}`)
     return this.getInitialState(market)
-      .then(() => this.conn.call('SubscribeToExchangeDeltas', bittrexMarket))
+      .then(() => this.conn.subscribe(bittrexMarket))
       .catch((err: any) => {
         logger.error(err.message, err)
         process.exit(1)
