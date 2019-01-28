@@ -50,6 +50,10 @@ export default class PoloniexConnection extends Connection {
     this.client.on('message', this.onMessage)
   }
 
+  subscribe (channel: number): Promise<void> {
+    return this.call('subscribe', { channel })
+  }
+
   call (method: string, options: any): Promise<void> {
     logger.debug(`[POLONIEX]: Sending ${method} command with options: ${JSON.stringify(options)}`)
     if (method === 'subscribe') {

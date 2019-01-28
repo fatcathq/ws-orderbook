@@ -133,12 +133,13 @@ export default class PoloniexStreamer extends Streamer {
 
   subscribeToMarket (market: MarketName): Promise<void> {
     const poloniexMarket = standardPairToPoloniexPair(market)
+    const channel = PoloniexMarkets[poloniexMarket]
 
     logger.debug(`[POLONIEX]: Subscribing to market ${poloniexMarket}`)
-    if (typeof PoloniexMarkets[poloniexMarket] === 'undefined') {
+    if (typeof channel === 'undefined') {
       throw new Error(`Unknown Poloniex market ${poloniexMarket}`)
     }
 
-    return this.conn.call('subscribe', { channel: PoloniexMarkets[poloniexMarket] })
+    return this.conn.subscribe(channel)
   }
 }
