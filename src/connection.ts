@@ -4,6 +4,7 @@ import EventEmitter from 'events'
 export default abstract class Connection extends EventEmitter {
   public awaitingClients: any[] = []
   public isConnected: boolean = false
+  abstract subscribe (item: string | number): Promise<void>
   abstract call (method: string, ...args: any[]): Promise<any>
 
   constructor (public readonly exchangeName: string) {
