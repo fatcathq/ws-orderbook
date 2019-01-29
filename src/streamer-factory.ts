@@ -2,6 +2,7 @@ import logger from './logger'
 import Streamer from './streamer'
 import BittrexStreamer from './bittrexstreamer'
 import PoloniexStreamer from './poloniexstreamer'
+import KrakenStreamer from './krakenstreamer'
 
 export default function streamerFactory (exchangeName: string): Streamer {
   logger.debug(`New ${exchangeName} streamer`)
@@ -10,6 +11,8 @@ export default function streamerFactory (exchangeName: string): Streamer {
       return new BittrexStreamer()
     case 'poloniex':
       return new PoloniexStreamer()
+    case 'kraken':
+      return new KrakenStreamer()
     default:
       throw new Error(`No streamer for ${exchangeName}`)
   }
