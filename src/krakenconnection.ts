@@ -36,7 +36,7 @@ export default class KrakenConnection extends Connection {
 
   private connect (): void {
     logger.debug('[KRAKEN]: Openning new connection')
-    this.client = new WebSocket('wss://ws-sandbox.kraken.com')
+    this.client = new WebSocket('wss://ws.kraken.com')
     this.client.on('error', this.connectionDied)
     this.client.on('open', () => {
       logger.debug('[KRAKEN]: Connection opened')
