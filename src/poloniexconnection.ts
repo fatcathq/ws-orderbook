@@ -1,5 +1,5 @@
 import WebSocket from 'ws'
-import logger from './logger'
+import logger from 'logger'
 import Connection from './connection'
 import delay from 'delay'
 

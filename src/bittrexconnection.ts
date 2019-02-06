@@ -1,5 +1,5 @@
 import cloudscraper from 'cloudscraper'
-import logger from './logger'
+import logger from 'logger'
 import signalR from 'signalr-client'
 import Connection from './connection'
 import delay from 'delay'

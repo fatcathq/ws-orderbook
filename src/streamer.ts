@@ -1,4 +1,4 @@
-import logger from './logger'
+import logger from 'logger'
 import Market, { MarketName } from './market'
 import Connection from './connection'
 

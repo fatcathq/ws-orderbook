@@ -1,4 +1,4 @@
-import logger from './logger'
+import logger from 'logger'
 import EventEmitter from 'events'
 
 export default abstract class Connection extends EventEmitter {

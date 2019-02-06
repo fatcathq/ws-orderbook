@@ -1,4 +1,4 @@
-import logger from './logger'
+import logger from 'logger'
 import Streamer from './streamer'
 import KrakenConnection from './krakenconnection'
 import { MarketName } from './market'

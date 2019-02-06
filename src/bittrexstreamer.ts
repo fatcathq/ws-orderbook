@@ -1,4 +1,4 @@
-import logger from './logger'
+import logger from 'logger'
 import Streamer from './streamer'
 import BittrexConnection from './bittrexconnection'
 import { OrderBookState, OrderBookStateUpdate } from './orderbook'

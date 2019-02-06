@@ -1,4 +1,4 @@
-import logger from './logger'
+import logger from 'logger'
 import Streamer from './streamer'
 import PoloniexConnection from './poloniexconnection'
 import { MarketName } from './market'

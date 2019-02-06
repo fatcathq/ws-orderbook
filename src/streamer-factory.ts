@@ -1,4 +1,4 @@
-import logger from './logger'
+import logger from 'logger'
 import Streamer from './streamer'
 import BittrexStreamer from './bittrexstreamer'
 import PoloniexStreamer from './poloniexstreamer'
