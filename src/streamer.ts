@@ -22,7 +22,7 @@ export default abstract class Streamer {
       this.conn
         .ready()
         .then(() => {
-          this.conn.on('connectionError', this.markets[market].voidOrderBook)
+          this.conn.on('connectionReset', this.markets[market].voidOrderBook)
           return this.subscribeToMarket(market)
         })
         .catch((err: any) => {

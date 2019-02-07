@@ -75,7 +75,7 @@ export default class PoloniexConnection extends Connection {
 
   private connectionDied = async (): Promise<void> => {
     logger.warn(`[POLONIEX]: Connection died. Reconnecting in ${this.RECONNECT_THROTTLE / 1000} seconds`)
-    this.emit('connectionError')
+    this.emit('connectionReset')
     this.isConnected = false
     this.disconnect()
 
