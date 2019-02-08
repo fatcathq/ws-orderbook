@@ -56,7 +56,7 @@ export default class BittrexConnection extends Connection {
           await delay(500)
           this.ping()
         } else if (err) {
-          logger.error(err)
+          logger.error(err.message, err)
         }
       })
   }
