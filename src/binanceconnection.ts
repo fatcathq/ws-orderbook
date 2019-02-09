@@ -30,8 +30,11 @@ export namespace BinanceConnectionTypes {
   export type UpdateType = 'initial' | 'delta'
 }
 
+const CONNECTION_REFRESH_TIMEOUT = 1000 * 3600 * 20 // every 20 hours
+
 export default class BinanceConnection extends Connection {
-  private client !: WebSocket
+  private client!: WebSocket
+  private refreshTimeout!: NodeJS.Timer
   private subscriptions: Set<string> = new Set()
   private snapshots: Map<string, BinanceConnectionTypes.Snapshot> = new Map()
   private lastMarketUpdate: Map<string, number> = new Map()
@@ -49,12 +52,7 @@ export default class BinanceConnection extends Connection {
     logger.debug(`[BINANCE]: Subscribing to ${market}`)
     this.subscriptions.add(market)
 
-    if (this.disconnect()) {
-      // wait for the previous connection to close
-      this.client.on('close', this.connect)
-    } else {
-      this.connect()
-    }
+    this.refreshConnection()
 
     return Promise.resolve()
   }
@@ -92,6 +90,7 @@ export default class BinanceConnection extends Connection {
       this.subscriptions.forEach(this.getInitialState)
     })
     this.client.on('message', this.onMessage)
+    this.setRefreshTimer()
   }
 
   private getInitialState = async (market: MarketName): Promise<void> => {
@@ -149,6 +148,24 @@ export default class BinanceConnection extends Connection {
       logger.warn(err.message, err)
       logger.warn(`[BINANCE]: Error processing message: ${JSON.stringify(messageString)}`)
     }
+  }
+
+  private refreshConnection = (): void => {
+    logger.debug(`[BINANCE]: Refreshing connection`)
+    if (this.disconnect()) {
+      // wait for the previous connection to close
+      this.client.on('close', this.connect)
+    } else {
+      this.connect()
+    }
+  }
+
+  private setRefreshTimer (): void {
+    if (this.refreshTimeout) {
+      clearTimeout(this.refreshTimeout)
+    }
+
+    this.refreshTimeout = setTimeout(this.refreshConnection, CONNECTION_REFRESH_TIMEOUT)
   }
 
   private connectionDied = async (): Promise<void> => {
