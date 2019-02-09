@@ -99,7 +99,7 @@ export default class BinanceConnection extends Connection {
     const { data: snapshot } = await axios.get(`https://www.binance.com/api/v1/depth?symbol=${market.toUpperCase()}&limit=1000`)
     this.snapshots.set(market, snapshot)
     logger.debug(`[BINANCE]: Got initial state for ${market}`)
-    this.emit('updateExchangeState', 'initial', snapshot)
+    this.emit('updateExchangeState', 'initial', market, snapshot)
   }
 
   private onMessage = (messageString: string): void => {
@@ -144,8 +144,9 @@ export default class BinanceConnection extends Connection {
       }
 
       this.lastMarketUpdate.set(market, finalUpdateId)
-      this.emit('updateExchangeState', 'delta', message.data)
+      this.emit('updateExchangeState', 'delta', market, message.data)
     } catch (err) {
+      logger.warn(err.message, err)
       logger.warn(`[BINANCE]: Error processing message: ${JSON.stringify(messageString)}`)
     }
   }
