@@ -102,6 +102,9 @@ export default class BinanceConnection extends Connection {
   }
 
   private onMessage = (messageString: string): void => {
+    if (messageString.includes('ping') || messageString.includes('pong')) {
+      logger.warn(`[BINANCE]: PING MESSAGE: ${messageString}`)
+    }
     try {
       const message = JSON.parse(messageString)
       const { stream } = message
