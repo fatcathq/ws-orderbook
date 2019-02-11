@@ -85,7 +85,7 @@ export default class KrakenConnection extends Connection {
   }
 
   private connectionDied = async (): Promise<void> => {
-    logger.warn(`[KRAKEN]: Connection died. Reconnecting in ${this.RECONNECT_THROTTLE / 1000} seconds`)
+    logger.debug(`[KRAKEN]: Connection died. Reconnecting in ${this.RECONNECT_THROTTLE / 1000} seconds`)
     this.emit('connectionReset')
     this.isConnected = false
     this.disconnect()
