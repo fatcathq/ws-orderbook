@@ -6,7 +6,9 @@ import { OrderBookState, OrderBookStateUpdate } from './orderbook'
 
 type Side = 'asks' | 'bids'
 
-const commonCoins: {[index: string]: string} = {}
+const commonCoins: {[index: string]: string} = {
+  'BSV': 'BCHSV'
+}
 
 function standardMarketToBinanceMarket (market: MarketName): MarketName {
   const [asset, currency] = market.split('/')

@@ -87,6 +87,7 @@ export default class BinanceConnection extends Connection {
     this.client.on('error', this.connectionDied)
     this.client.on('open', () => {
       logger.debug(`[BINANCE]: Connection open`)
+      // TODO: Error handling
       this.subscriptions.forEach(this.getInitialState)
     })
     this.client.on('message', this.onMessage)
