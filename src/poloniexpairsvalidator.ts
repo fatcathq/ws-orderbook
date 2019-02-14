@@ -14,7 +14,6 @@ export default async function validateChannelIds (): Promise<void> {
   const pairs: PoloniexPairChannels = {}
 
   pairIdElements.each((index, element) => pairs[$(pairNameElements[index]).text()] = +$(element).text())
-  pairs['BTC_BCHSV'] = 238 // temporary fix until Poloniex updates the docs
 
   if (JSON.stringify(pairs) !== JSON.stringify(PoloniexMarkets)) {
     throw new Error('Local poloniex pair ids don\'t match with the documentation.')
