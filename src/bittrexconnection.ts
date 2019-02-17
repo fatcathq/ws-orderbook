@@ -28,6 +28,11 @@ export default class BittrexConnection extends Connection {
     }
 
     this.client.serviceHandlers.connectFailed = this.connectionFailed
+    this.client.serviceHandlers.disconnected = (err: any) => {
+      logger.error('[BITTREX]: Connection died (Connection Aborted)')
+      logger.error(err.message, err)
+      this.emit('connectionReset')
+    }
 
     cloudscraper.get(PROTECTED_PAGE, (err: any, resp: any) => {
       if (err) {
