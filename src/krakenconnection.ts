@@ -20,18 +20,22 @@ export default class KrakenConnection extends Connection {
     this.connect()
   }
 
-  private disconnect (): void {
-    if (this.client) {
+  private disconnect (): boolean {
+    if (this.client && this.client.readyState !== WebSocket.CLOSED) {
       logger.debug('[KRAKEN]: Closing previous connection')
 
       try {
         this.client.off('message', this.onMessage)
         this.client.off('error', this.connectionDied)
         this.client.close()
+
+        return true
       } catch (err) {
         logger.debug(err.message, err)
       }
     }
+
+    return false
   }
 
   private connect (): void {
