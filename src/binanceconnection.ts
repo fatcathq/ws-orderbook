@@ -30,7 +30,7 @@ export namespace BinanceConnectionTypes {
   export type UpdateType = 'initial' | 'delta'
 }
 
-const CONNECTION_REFRESH_TIMEOUT = 1000 * 3600 * 20 // every 20 hours
+const CONNECTION_REFRESH_TIMEOUT = 1000 * 3600 // every 1 hour
 
 export default class BinanceConnection extends Connection {
   private client!: WebSocket
