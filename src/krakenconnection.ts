@@ -5,10 +5,12 @@ import delay from 'delay'
 
 const HEARTBEAT_TIMEOUT_MS = 1500
 const RECONNECT_DELAY = 100
+const REFRESH_TIMEOUT = 1000 * 60 * 30 // every 30 mins
 
 export default class KrakenConnection extends Connection {
   private client!: WebSocket
   private aliveTimeout: NodeJS.Timer | null
+  private refreshTimeout!: NodeJS.Timer
   private subscriptions: Set<string> = new Set()
   private channels: Map<number, string> = new Map()
   private RECONNECT_THROTTLE: number = RECONNECT_DELAY
@@ -53,6 +55,7 @@ export default class KrakenConnection extends Connection {
       this.connectionOpened()
     })
     this.client.on('message', this.onMessage)
+    this.setRefreshTimer()
   }
 
   subscribe (pair: string): Promise<void> {
@@ -91,6 +94,9 @@ export default class KrakenConnection extends Connection {
   private refreshConnection = async (throttle = false): Promise<void> => {
     logger.debug(`[KRAKEN]: Refreshing connection.`)
     this.emit('connectionReset')
+    if (this.aliveTimeout) {
+      clearTimeout(this.aliveTimeout)
+    }
     this.isConnected = false
 
     const reconnect = async () => {
@@ -118,5 +124,13 @@ export default class KrakenConnection extends Connection {
     }
 
     this.aliveTimeout = setTimeout(this.refreshConnection.bind(this, true), HEARTBEAT_TIMEOUT_MS)
+  }
+
+  private setRefreshTimer (): void {
+    if (this.refreshTimeout) {
+      clearTimeout(this.refreshTimeout)
+    }
+
+    this.refreshTimeout = setTimeout(this.refreshConnection, REFRESH_TIMEOUT)
   }
 }
