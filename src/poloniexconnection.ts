@@ -5,9 +5,11 @@ import delay from 'delay'
 
 const HEARTBEAT_TIMEOUT_MS = 1500
 const RECONNECT_DELAY = 100
+const REFRESH_TIMEOUT = 1000 * 60 * 30 // every 30 mins
 
 export default class PoloniexConnection extends Connection {
   private client!: WebSocket
+  private refreshTimeout!: NodeJS.Timer
   private aliveTimeout: NodeJS.Timer | null
   private subscriptions: Set<number> = new Set()
   private RECONNECT_THROTTLE: number = RECONNECT_DELAY
@@ -19,22 +21,31 @@ export default class PoloniexConnection extends Connection {
     this.connect()
   }
 
-  private disconnect (): void {
-    if (this.client) {
+  private disconnect (): boolean {
+    if (this.client && this.client.readyState !== WebSocket.CLOSED) {
       logger.debug('[POLONIEX]: Closing previous connection')
 
       try {
         this.client.off('message', this.onMessage)
         this.client.off('error', this.connectionDied)
         this.client.close()
+
+        return true
       } catch (err) {
-        logger.debug(err.message, err)
+        logger.warn(err.message, err)
       }
+    } else {
+      logger.debug('[POLONIEX]: Connection already closed or not available')
     }
+
+    return true
   }
 
-  private connect (): void {
+  private connect = (): void => {
     logger.debug('[POLONIEX]: Openning new connection')
+    if (this.client) {
+      logger.debug(`[POLONIEX]: Client status: ${this.client.readyState}`)
+    }
     this.client = new WebSocket('wss://api2.poloniex.com')
     this.client.on('error', this.connectionDied)
     this.client.on('open', () => {
@@ -48,6 +59,7 @@ export default class PoloniexConnection extends Connection {
       this.connectionOpened()
     })
     this.client.on('message', this.onMessage)
+    this.setRefreshTimer()
   }
 
   subscribe (channel: number): Promise<void> {
@@ -93,5 +105,28 @@ export default class PoloniexConnection extends Connection {
     }
 
     this.aliveTimeout = setTimeout(this.connectionDied, HEARTBEAT_TIMEOUT_MS)
+  }
+
+  private refreshConnection = (): void => {
+    logger.debug(`[POLONIEX]: Refreshing connection`)
+    this.emit('connectionReset')
+    if (this.aliveTimeout) {
+      clearTimeout(this.aliveTimeout)
+    }
+
+    if (this.disconnect()) {
+      // wait for the previous connection to close
+      this.client.on('close', this.connect)
+    } else {
+      this.connect()
+    }
+  }
+
+  private setRefreshTimer (): void {
+    if (this.refreshTimeout) {
+      clearTimeout(this.refreshTimeout)
+    }
+
+    this.refreshTimeout = setTimeout(this.refreshConnection, REFRESH_TIMEOUT)
   }
 }
