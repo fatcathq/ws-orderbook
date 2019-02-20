@@ -26,7 +26,7 @@ export default class KrakenConnection extends Connection {
 
       try {
         this.client.off('message', this.onMessage)
-        this.client.off('error', this.connectionDied)
+        this.client.off('error', this.refreshConnection)
         this.client.close()
 
         return true
@@ -41,7 +41,7 @@ export default class KrakenConnection extends Connection {
   private connect (): void {
     logger.debug('[KRAKEN]: Openning new connection')
     this.client = new WebSocket('wss://ws.kraken.com')
-    this.client.on('error', this.connectionDied)
+    this.client.on('error', this.refreshConnection)
     this.client.on('open', () => {
       logger.debug('[KRAKEN]: Connection opened')
       this.subscriptions.forEach(pair => {
@@ -88,16 +88,26 @@ export default class KrakenConnection extends Connection {
     this.emit('updateExchangeState', message)
   }
 
-  private connectionDied = async (): Promise<void> => {
-    logger.debug(`[KRAKEN]: Connection died. Reconnecting in ${this.RECONNECT_THROTTLE / 1000} seconds`)
+  private refreshConnection = async (throttle = false): Promise<void> => {
+    logger.debug(`[KRAKEN]: Refreshing connection.`)
     this.emit('connectionReset')
     this.isConnected = false
-    this.disconnect()
 
-    await delay(this.RECONNECT_THROTTLE)
-    this.RECONNECT_THROTTLE *= 2
+    const reconnect = async () => {
+      if (throttle) {
+        logger.debug(`[KRAKEN]: Reconnecting in ${this.RECONNECT_THROTTLE / 1000} seconds`)
+        await delay(this.RECONNECT_THROTTLE)
+        this.RECONNECT_THROTTLE *= 2
+      }
 
-    this.connect()
+      this.connect()
+    }
+
+    if (this.disconnect()) {
+      this.client.on('close', reconnect)
+    } else {
+      await reconnect()
+    }
   }
 
   private alive (): void {
@@ -107,6 +117,6 @@ export default class KrakenConnection extends Connection {
       clearTimeout(this.aliveTimeout)
     }
 
-    this.aliveTimeout = setTimeout(this.connectionDied, HEARTBEAT_TIMEOUT_MS)
+    this.aliveTimeout = setTimeout(this.refreshConnection.bind(this, true), HEARTBEAT_TIMEOUT_MS)
   }
 }
