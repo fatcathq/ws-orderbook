@@ -3,14 +3,40 @@ import logger from 'logger'
 import signalR from 'signalr-client'
 import Connection from './connection'
 import delay from 'delay'
+import { MarketName } from './market'
 
 const PROTECTED_PAGE = 'https://bittrex.com/Market/Index?MarketName=USDT-BTC'
 
 const HEARTBEAT_TIMEOUT_MS = 2000
 
+export namespace BittrexConnectionTypes {
+  export type Order = {
+    Rate: number,
+    Quantity: number
+  }
+
+  export interface OrderUpdate extends Order {
+    Type: 0 | 1 | 2
+  }
+
+  export type Snapshot = {
+    Buys: Array<Order>,
+    Sells: Array<Order>
+  }
+
+  export type OrderBookUpdate = {
+    MarketName: MarketName,
+    Buys: Array<OrderUpdate>,
+    Sells: Array<OrderUpdate>
+  }
+
+  export type UpdateType = 'initial' | 'delta'
+}
+
 export default class BittrexConnection extends Connection {
   public client: any
   private aliveTimeout: NodeJS.Timer | null
+  private subscriptions: Set<string> = new Set()
 
   constructor () {
     super('bittrex')
@@ -43,9 +69,9 @@ export default class BittrexConnection extends Connection {
       this.client.start()
     })
 
-    this.client.on('CoreHub', 'updateExchangeState', (update: any) => {
+    this.client.on('CoreHub', 'updateExchangeState', (update: BittrexConnectionTypes.OrderBookUpdate) => {
       logger.debug('[BITTREX]: Received update')
-      this.emit('updateExchangeState', update)
+      this.emit('updateExchangeState', 'delta', update.MarketName, update)
     })
 
     this.aliveTimeout = null
@@ -80,8 +106,15 @@ export default class BittrexConnection extends Connection {
     // this.emit('connectionReset')
   }
 
-  subscribe (pair: string): Promise<void> {
-    return this.call('SubscribeToExchangeDeltas', pair)
+  async subscribe (market: string): Promise<void> {
+    this.subscriptions.add(market)
+
+    const initialState: BittrexConnectionTypes.Snapshot = await this.call('QueryExchangeState', market)
+
+    logger.debug(`[BITTREX]: Got initial state of ${market} orderbook`)
+    this.emit('UpdateExchangeState', 'initial', market, initialState)
+
+    return this.call('SubscribeToExchangeDeltas', market)
   }
 
   // TODO(gtklocker): handle case where client disconnects mid-operation

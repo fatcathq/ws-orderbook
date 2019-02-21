@@ -1,31 +1,15 @@
 import logger from 'logger'
 import Streamer from './streamer'
-import BittrexConnection from './bittrexconnection'
-import { OrderBookState, OrderBookStateUpdate } from './orderbook'
+import BittrexConnection, { BittrexConnectionTypes } from './bittrexconnection'
+import { OrderBookState, OrderBookStateUpdate, OrderEvent, OrderBookRecord } from './orderbook'
 import { MarketName } from './market'
 
-type BittrexOrder = {
-  Rate: number,
-  Quantity: number
-}
-
-interface BittrexOrderUpdate extends BittrexOrder {
-  Type: 0 | 1 | 2
-}
-
-type BittrexOrderBookState = {
-  Buys: Array<BittrexOrder>,
-  Sells: Array<BittrexOrder>
-}
-
-type BittrexOrderBookStateUpdate = {
-  MarketName: MarketName,
-  Buys: Array<BittrexOrderUpdate>,
-  Sells: Array<BittrexOrderUpdate>
-}
-
-const formatOrderKeys = ({ Rate, Quantity }: BittrexOrder) => ({ rate: Rate, quantity: Quantity })
-const formatOrderUpdateKeys = ({ Type, Rate, Quantity }: BittrexOrderUpdate) => ({ type: Type, rate: Rate, quantity: Quantity })
+const formatOrderKeys =
+  ({ Rate, Quantity }: BittrexConnectionTypes.Order): OrderBookRecord =>
+    ({ rate: Rate, quantity: Quantity })
+const formatOrderUpdateKeys =
+  ({ Type, Rate, Quantity }: BittrexConnectionTypes.OrderUpdate): OrderEvent =>
+    ({ type: Type, rate: Rate, quantity: Quantity })
 
 export default class BittrexStreamer extends Streamer {
   constructor () {
@@ -35,19 +19,45 @@ export default class BittrexStreamer extends Streamer {
   setupConn (): void {
     this.conn = new BittrexConnection()
 
-    this.conn.on('updateExchangeState', (update: BittrexOrderBookStateUpdate) => {
-      const [ currency, asset ] = update.MarketName.split('-')
+    this.conn.on('updateExchangeState', (
+      updateType: BittrexConnectionTypes.UpdateType,
+      bittrexMarket: MarketName,
+      update: BittrexConnectionTypes.Snapshot | BittrexConnectionTypes.OrderBookUpdate) => {
+      const [ currency, asset ] = bittrexMarket.split('-')
       const market = `${asset}/${currency}`
 
-      if (this.haveMarket(market)) {
-        const orderBookUpdate: OrderBookStateUpdate = {
-          asks: update.Sells.map(formatOrderUpdateKeys),
-          bids: update.Buys.map(formatOrderUpdateKeys)
-        }
-
-        this.markets[market].onUpdateExchangeState(orderBookUpdate)
+      if (updateType === 'initial') {
+        this.onInitialState(market, update as BittrexConnectionTypes.Snapshot)
+      } else {
+        this.onOrderUpdate(market, update as BittrexConnectionTypes.OrderBookUpdate)
       }
     })
+  }
+
+  private onInitialState (market: MarketName, snapshot: BittrexConnectionTypes.Snapshot): void {
+    if (!this.haveMarket(market)) {
+      return
+    }
+
+    const orderBookState: OrderBookState = {
+      asks: snapshot.Sells.map(formatOrderKeys),
+      bids: snapshot.Buys.map(formatOrderKeys)
+    }
+
+    this.markets[market].onInitialState(orderBookState)
+  }
+
+  private onOrderUpdate (market: MarketName, update: BittrexConnectionTypes.OrderBookUpdate): void {
+    if (!this.haveMarket(market)) {
+      return
+    }
+
+    const orderBookUpdate: OrderBookStateUpdate = {
+      asks: update.Sells.map(formatOrderUpdateKeys),
+      bids: update.Buys.map(formatOrderUpdateKeys)
+    }
+
+    this.markets[market].onUpdateExchangeState(orderBookUpdate)
   }
 
   subscribeToMarket (market: MarketName): Promise<void> {
@@ -55,36 +65,6 @@ export default class BittrexStreamer extends Streamer {
     const bittrexMarket = `${currency}-${asset}`
 
     logger.debug(`[BITTREX]: Subscribing to market ${bittrexMarket}`)
-    return this.getInitialState(market)
-      .then(() => this.conn.subscribe(bittrexMarket))
-      .catch((err: any) => {
-        logger.error(err.message, err)
-        process.exit(1)
-      })
-  }
-
-  getInitialState (market: MarketName): Promise<void> {
-    const [ asset, currency ] = market.split('/')
-    const bittrexMarket = `${currency}-${asset}`
-
-    logger.debug(`[BITTREX]: Querying initial state of ${bittrexMarket} orderbook`)
-    if (this.haveMarket(market)) {
-      return this.conn
-        .call('QueryExchangeState', bittrexMarket)
-        .then((state: BittrexOrderBookState) => {
-          logger.debug(`[BITTREX]: Got initial state of ${bittrexMarket} orderbook`)
-          const orderBookState: OrderBookState = {
-            asks: state.Sells.map(formatOrderKeys),
-            bids: state.Buys.map(formatOrderKeys)
-          }
-          this.markets[market].onInitialState(orderBookState)
-        })
-        .catch((err: any) => {
-          logger.error(err.message, err)
-          process.exit(1)
-        })
-    }
-    logger.debug(`[BITTREX]: Haven't created market ${market}`)
-    return Promise.reject()
+    return this.conn.subscribe(bittrexMarket)
   }
 }
