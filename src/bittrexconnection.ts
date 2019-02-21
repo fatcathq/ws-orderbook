@@ -41,6 +41,11 @@ export default class BittrexConnection extends Connection {
   constructor () {
     super('bittrex')
 
+    this.aliveTimeout = null
+    this.connect()
+  }
+
+  private connect = (): void => {
     this.client = new signalR.client(
       'wss://socket.bittrex.com/signalr',     // url
       ['CoreHub'],                            // hubs
@@ -54,9 +59,18 @@ export default class BittrexConnection extends Connection {
     }
 
     this.client.serviceHandlers.connectFailed = this.connectionFailed
-    this.client.serviceHandlers.disconnected = (err: any) => {
-      logger.error('[BITTREX]: Connection died (Connection Aborted)')
+    this.client.serviceHandlers.connectionLost = (err: Error) => {
+      logger.error('[BITTREX]: Connection lost')
       logger.error(err.message, err)
+      this.emit('connectionReset')
+    }
+    this.client.serviceHandlers.onerror = (err: Error) => {
+      logger.error('[BITTREX]: Connection error')
+      logger.error(err.message, err)
+      this.emit('connectionReset')
+    }
+    this.client.serviceHandlers.disconnected = () => {
+      logger.error('[BITTREX]: Client disconnected')
       this.emit('connectionReset')
     }
 
@@ -81,8 +95,8 @@ export default class BittrexConnection extends Connection {
     logger.debug('[BITTREX]: Sending ping')
     this.client.call('CoreHub', 'SubscribeToExchangeDeltas', 'BTC-ETH')
       .done(async (err: Error | undefined, res: any) => {
-        logger.debug('[BITTREX]: Got ping reply')
         if (res) {
+          logger.debug('[BITTREX]: Got ping reply')
           this.alive()
           await delay(500)
           this.ping()
