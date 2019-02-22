@@ -8,6 +8,8 @@ import { MarketName } from './market'
 const PROTECTED_PAGE = 'https://bittrex.com/Market/Index?MarketName=USDT-BTC'
 
 const HEARTBEAT_TIMEOUT_MS = 2000
+const RECONNECT_DELAY = 100
+const REFRESH_TIMEOUT = 1000 * 60 * 30 // every 30 mins
 
 export namespace BittrexConnectionTypes {
   export type Order = {
@@ -36,7 +38,9 @@ export namespace BittrexConnectionTypes {
 export default class BittrexConnection extends Connection {
   public client: any
   private aliveTimeout: NodeJS.Timer | null
+  private refreshTimeout!: NodeJS.Timer
   private subscriptions: Set<string> = new Set()
+  private RECONNECT_THROTTLE: number = RECONNECT_DELAY
 
   constructor () {
     super('bittrex')
@@ -89,7 +93,7 @@ export default class BittrexConnection extends Connection {
       this.emit('updateExchangeState', 'delta', update.MarketName, update)
     })
 
-    this.aliveTimeout = null
+    this.setRefreshTimer()
   }
 
   private disconnect = async (): Promise<void> => {
@@ -143,16 +147,24 @@ export default class BittrexConnection extends Connection {
     }
 
     logger.debug('[BITTREX]: Connection alive')
+    this.RECONNECT_THROTTLE = RECONNECT_DELAY
     if (this.aliveTimeout) {
       clearTimeout(this.aliveTimeout)
     }
 
-    this.aliveTimeout = setTimeout(this.connectionDied, HEARTBEAT_TIMEOUT_MS)
+    this.aliveTimeout = setTimeout(this.refreshConnection.bind(this, 'alivetimeout'), HEARTBEAT_TIMEOUT_MS)
   }
 
-  private connectionDied = (): void => {
-    logger.debug('[BITTREX]: Connection died')
-    // this.emit('connectionReset')
+  private refreshConnection = async (reason: string): Promise<void> => {
+    logger.debug(`[BITTREX]: Refreshing connection. Reason: ${reason}`)
+    this.emit('connectionReset')
+    await this.disconnect()
+
+    logger.debug(`[BITTREX]: Reconnecting in ${this.RECONNECT_THROTTLE / 1000} seconds`)
+    await delay(this.RECONNECT_THROTTLE)
+    this.RECONNECT_THROTTLE *= 2
+
+    this.connect()
   }
 
   async subscribe (market: string): Promise<void> {
@@ -185,5 +197,13 @@ export default class BittrexConnection extends Connection {
           }
         })
     })
+  }
+
+  private setRefreshTimer (): void {
+    if (this.refreshTimeout) {
+      clearTimeout(this.refreshTimeout)
+    }
+
+    this.refreshTimeout = setTimeout(this.refreshConnection.bind(this, 'refresh'), REFRESH_TIMEOUT)
   }
 }
