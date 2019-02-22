@@ -61,6 +61,11 @@ export default class BittrexConnection extends Connection {
     this.client.serviceHandlers.connected = () => {
       this.connectionOpened()
       this.ping()
+
+      this.subscriptions.forEach(market => {
+        logger.debug(`[BITTREX]: Resubscribing to ${market}`)
+        this.subscribe(market)
+      })
     }
 
     this.client.serviceHandlers.connectFailed = (err: Error) => {
