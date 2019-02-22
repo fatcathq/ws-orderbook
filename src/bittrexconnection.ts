@@ -46,6 +46,7 @@ export default class BittrexConnection extends Connection {
   }
 
   private connect = (): void => {
+    logger.debug('[BITTREX]: Connecting')
     this.client = new signalR.client(
       'wss://socket.bittrex.com/signalr',     // url
       ['CoreHub'],                            // hubs
@@ -91,22 +92,56 @@ export default class BittrexConnection extends Connection {
     this.aliveTimeout = null
   }
 
+  private disconnect = async (): Promise<void> => {
+    logger.debug('[BITTREX]: Disconnecting')
+    const disconnectPromise = new Promise((resolve) => {
+      if (this.isConnected) {
+        this.client.serviceHandlers.disconnected = resolve
+        this.client.end()
+      } else {
+        this.client.serviceHandlers.disconnected = undefined
+        resolve()
+      }
+    })
+
+    this.isConnected = false
+    this.client.serviceHandlers.connected = undefined
+    this.client.serviceHandlers.connectFailed = undefined
+    this.client.serviceHandlers.connectionLost = undefined
+    this.client.serviceHandlers.onerror = undefined
+    this.client.off('CoreHub', 'updateExchangeState')
+    if (this.aliveTimeout) {
+      clearTimeout(this.aliveTimeout)
+    }
+    if (this.aliveTimeout) {
+      clearTimeout(this.refreshTimeout)
+    }
+
+    await disconnectPromise
+  }
+
   private ping (): void {
+    if (!this.isConnected) {
+      return
+    }
+
     logger.debug('[BITTREX]: Sending ping')
     this.client.call('CoreHub', 'SubscribeToExchangeDeltas', 'BTC-ETH')
-      .done(async (err: Error | undefined, res: any) => {
+      .done(async (_: any, res: any) => {
         if (res) {
           logger.debug('[BITTREX]: Got ping reply')
           this.alive()
           await delay(500)
           this.ping()
-        } else if (err) {
-          logger.error(err.message, err)
         }
       })
   }
 
   private alive (): void {
+    if (!this.isConnected) {
+      return
+    }
+
     logger.debug('[BITTREX]: Connection alive')
     if (this.aliveTimeout) {
       clearTimeout(this.aliveTimeout)
