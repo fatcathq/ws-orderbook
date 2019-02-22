@@ -59,24 +59,28 @@ export default class BittrexConnection extends Connection {
     )
 
     this.client.serviceHandlers.connected = () => {
-      this.ping()
       this.connectionOpened()
+      this.ping()
     }
 
-    this.client.serviceHandlers.connectFailed = this.connectionFailed
+    this.client.serviceHandlers.connectFailed = (err: Error) => {
+      logger.error('[BITTREX]: Connection failed')
+      logger.error(err.message, err)
+      this.refreshConnection('connectfailed')
+    }
     this.client.serviceHandlers.connectionLost = (err: Error) => {
       logger.error('[BITTREX]: Connection lost')
       logger.error(err.message, err)
-      this.emit('connectionReset')
+      this.refreshConnection('connectionlost')
     }
     this.client.serviceHandlers.onerror = (err: Error) => {
       logger.error('[BITTREX]: Connection error')
       logger.error(err.message, err)
-      this.emit('connectionReset')
+      this.refreshConnection('connectionerror')
     }
     this.client.serviceHandlers.disconnected = () => {
       logger.error('[BITTREX]: Client disconnected')
-      this.emit('connectionReset')
+      this.refreshConnection('disconnected')
     }
 
     cloudscraper.get(PROTECTED_PAGE, (err: any, resp: any) => {
