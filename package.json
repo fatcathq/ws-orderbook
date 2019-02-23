@@ -15,7 +15,7 @@
     "fs": "0.0.1-security",
     "logger": "git+ssh://git@gitlab.com/fatcathq/logger.git#master",
     "path": "^0.12.7",
-    "signalr-client": "0.0.19",
+    "signalr-client": "git+ssh://git@github.com/themicp/signalr-client-nodejs.git#package",
     "winston": "^3.1.0",
     "ws": "^6.1.2"
   },
