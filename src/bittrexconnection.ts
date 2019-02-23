@@ -8,8 +8,6 @@ import { MarketName } from './market'
 const PROTECTED_PAGE = 'https://bittrex.com/Market/Index?MarketName=USDT-BTC'
 
 const HEARTBEAT_TIMEOUT_MS = 2000
-const RECONNECT_DELAY = 100
-const REFRESH_TIMEOUT = 1000 * 60 * 30 // every 30 mins
 
 export namespace BittrexConnectionTypes {
   export type Order = {
@@ -37,19 +35,11 @@ export namespace BittrexConnectionTypes {
 
 export default class BittrexConnection extends Connection {
   public client: any
-  private aliveTimeout: NodeJS.Timer | null
-  private refreshTimeout!: NodeJS.Timer
   private subscriptions: Set<string> = new Set()
-  private RECONNECT_THROTTLE: number = RECONNECT_DELAY
 
-  constructor () {
-    super('bittrex')
+  constructor () { super('bittrex', HEARTBEAT_TIMEOUT_MS) }
 
-    this.aliveTimeout = null
-    this.connect()
-  }
-
-  private connect = (): void => {
+  protected connect (): void {
     logger.debug('[BITTREX]: Connecting')
     this.client = new signalR.client(
       'wss://socket.bittrex.com/signalr',     // url
@@ -101,11 +91,9 @@ export default class BittrexConnection extends Connection {
       logger.debug('[BITTREX]: Received update')
       this.emit('updateExchangeState', 'delta', update.MarketName, update)
     })
-
-    this.setRefreshTimer()
   }
 
-  private disconnect = async (): Promise<void> => {
+  protected async disconnect (): Promise<void> {
     logger.debug('[BITTREX]: Disconnecting')
     const disconnectPromise = new Promise((resolve) => {
       if (this.isConnected) {
@@ -117,18 +105,13 @@ export default class BittrexConnection extends Connection {
       }
     })
 
-    this.isConnected = false
     this.client.serviceHandlers.connected = undefined
     this.client.serviceHandlers.connectFailed = undefined
     this.client.serviceHandlers.connectionLost = undefined
     this.client.serviceHandlers.onerror = undefined
     this.client.off('CoreHub', 'updateExchangeState')
-    if (this.aliveTimeout) {
-      clearTimeout(this.aliveTimeout)
-    }
-    if (this.aliveTimeout) {
-      clearTimeout(this.refreshTimeout)
-    }
+    this.clearAliveTimer()
+    this.clearRefreshTimer()
 
     await disconnectPromise
   }
@@ -150,39 +133,13 @@ export default class BittrexConnection extends Connection {
       })
   }
 
-  private alive (): void {
-    if (!this.isConnected) {
-      return
-    }
-
-    logger.debug('[BITTREX]: Connection alive')
-    this.RECONNECT_THROTTLE = RECONNECT_DELAY
-    if (this.aliveTimeout) {
-      clearTimeout(this.aliveTimeout)
-    }
-
-    this.aliveTimeout = setTimeout(this.refreshConnection.bind(this, 'alivetimeout'), HEARTBEAT_TIMEOUT_MS)
-  }
-
-  private refreshConnection = async (reason: string): Promise<void> => {
-    logger.debug(`[BITTREX]: Refreshing connection. Reason: ${reason}`)
-    this.emit('connectionReset')
-    await this.disconnect()
-
-    logger.debug(`[BITTREX]: Reconnecting in ${this.RECONNECT_THROTTLE / 1000} seconds`)
-    await delay(this.RECONNECT_THROTTLE)
-    this.RECONNECT_THROTTLE *= 2
-
-    this.connect()
-  }
-
   async subscribe (market: string): Promise<void> {
     this.subscriptions.add(market)
 
     const initialState: BittrexConnectionTypes.Snapshot = await this.call('QueryExchangeState', market)
 
     logger.debug(`[BITTREX]: Got initial state of ${market} orderbook`)
-    this.emit('UpdateExchangeState', 'initial', market, initialState)
+    this.emit('updateExchangeState', 'initial', market, initialState)
 
     return this.call('SubscribeToExchangeDeltas', market)
   }
@@ -206,13 +163,5 @@ export default class BittrexConnection extends Connection {
           }
         })
     })
-  }
-
-  private setRefreshTimer (): void {
-    if (this.refreshTimeout) {
-      clearTimeout(this.refreshTimeout)
-    }
-
-    this.refreshTimeout = setTimeout(this.refreshConnection.bind(this, 'refresh'), REFRESH_TIMEOUT)
   }
 }

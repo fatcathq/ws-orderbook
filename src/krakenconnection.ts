@@ -1,49 +1,42 @@
 import WebSocket from 'ws'
 import logger from 'logger'
 import Connection from './connection'
-import delay from 'delay'
 
 const HEARTBEAT_TIMEOUT_MS = 1500
-const RECONNECT_DELAY = 100
-const REFRESH_TIMEOUT = 1000 * 60 * 30 // every 30 mins
 
 export default class KrakenConnection extends Connection {
   private client!: WebSocket
-  private aliveTimeout: NodeJS.Timer | null
-  private refreshTimeout!: NodeJS.Timer
   private subscriptions: Set<string> = new Set()
   private channels: Map<number, string> = new Map()
-  private RECONNECT_THROTTLE: number = RECONNECT_DELAY
 
-  constructor () {
-    super('kraken')
+  constructor () { super('kraken', HEARTBEAT_TIMEOUT_MS) }
 
-    this.aliveTimeout = null
-    this.connect()
-  }
-
-  private disconnect (): boolean {
+  protected disconnect (): Promise<void> {
     if (this.client && this.client.readyState !== WebSocket.CLOSED) {
       logger.debug('[KRAKEN]: Closing previous connection')
 
-      try {
-        this.client.off('message', this.onMessage)
-        this.client.off('error', this.refreshConnection)
-        this.client.close()
+      return new Promise((resolve) => {
+        try {
+          this.client.removeEventListener('message')
+          this.client.removeEventListener('off')
+          this.client.on('close', resolve)
+          this.client.close()
+        } catch (err) {
+          logger.debug(err.message, err)
 
-        return true
-      } catch (err) {
-        logger.debug(err.message, err)
-      }
+          this.client.off('close', resolve)
+          resolve()
+        }
+      })
     }
 
-    return false
+    return Promise.resolve()
   }
 
-  private connect (): void {
+  protected connect (): void {
     logger.debug('[KRAKEN]: Openning new connection')
     this.client = new WebSocket('wss://ws.kraken.com')
-    this.client.on('error', this.refreshConnection)
+    this.client.on('error', this.refreshConnection.bind(this, 'connectionerror'))
     this.client.on('open', () => {
       logger.debug('[KRAKEN]: Connection opened')
       this.subscriptions.forEach(pair => {
@@ -55,7 +48,6 @@ export default class KrakenConnection extends Connection {
       this.connectionOpened()
     })
     this.client.on('message', this.onMessage)
-    this.setRefreshTimer()
   }
 
   subscribe (pair: string): Promise<void> {
@@ -89,48 +81,5 @@ export default class KrakenConnection extends Connection {
 
     message.splice(1, 0, this.channels.get(message[0]))
     this.emit('updateExchangeState', message)
-  }
-
-  private refreshConnection = async (throttle = false): Promise<void> => {
-    logger.debug(`[KRAKEN]: Refreshing connection.`)
-    this.emit('connectionReset')
-    if (this.aliveTimeout) {
-      clearTimeout(this.aliveTimeout)
-    }
-    this.isConnected = false
-
-    const reconnect = async () => {
-      if (throttle) {
-        logger.debug(`[KRAKEN]: Reconnecting in ${this.RECONNECT_THROTTLE / 1000} seconds`)
-        await delay(this.RECONNECT_THROTTLE)
-        this.RECONNECT_THROTTLE *= 2
-      }
-
-      this.connect()
-    }
-
-    if (this.disconnect()) {
-      this.client.on('close', reconnect)
-    } else {
-      await reconnect()
-    }
-  }
-
-  private alive (): void {
-    logger.debug('[KRAKEN]: Connection alive')
-    this.RECONNECT_THROTTLE = RECONNECT_DELAY
-    if (this.aliveTimeout) {
-      clearTimeout(this.aliveTimeout)
-    }
-
-    this.aliveTimeout = setTimeout(this.refreshConnection.bind(this, true), HEARTBEAT_TIMEOUT_MS)
-  }
-
-  private setRefreshTimer (): void {
-    if (this.refreshTimeout) {
-      clearTimeout(this.refreshTimeout)
-    }
-
-    this.refreshTimeout = setTimeout(this.refreshConnection, REFRESH_TIMEOUT)
   }
 }
