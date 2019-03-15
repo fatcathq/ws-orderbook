@@ -1,4 +1,4 @@
-type OrderEventType = 0 | 1 | 2
+type OrderEventType = 0 | 1 | 2 | 3
 type Rate = number
 type Quantity = number
 
@@ -37,6 +37,22 @@ export default class OrderBook {
         if (this.store.hasOwnProperty(orderEvent.rate)) {
           delete this.store[orderEvent.rate]
         }
+        break
+      case 3: // delta
+        if (!this.store.hasOwnProperty(orderEvent.rate)) {
+          this.store[orderEvent.rate] = {
+            rate: orderEvent.rate,
+            quantity: orderEvent.quantity
+          }
+          break
+        }
+
+        this.store[orderEvent.rate].quantity += orderEvent.quantity
+
+        if (this.store[orderEvent.rate].quantity == 0) {
+          delete this.store[orderEvent.rate]
+        }
+
         break
       default:
         console.log('unknown type given', orderEvent.type)
