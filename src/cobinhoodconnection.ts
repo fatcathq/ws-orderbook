@@ -79,7 +79,7 @@ export default class CobinhoodConnection extends Connection {
     logger.debug(`[COBINHOOD]: Subscribing to pair ${pair}`)
     this.subscriptions.add(pair)
     this.client.send(JSON.stringify({
-      event: 'subscribe',
+      action: 'subscribe',
       type: 'order-book',
       trading_pair_id: pair,
       precision: '1E-7'
