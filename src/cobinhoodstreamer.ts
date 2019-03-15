@@ -28,14 +28,14 @@ export default class CobinhoodStreamer extends Streamer {
       const {asks, bids} = payload
       const orderBook: OrderBookState = { asks: [], bids: [] }
 
-      for (const entry in asks) {
+      for (const entry of asks) {
         orderBook.asks.push({
           rate: Number(entry[0]),
           quantity: Number(entry[2])
         })
       }
 
-      for (const entry in bids) {
+      for (const entry of bids) {
         orderBook.bids.push({
           rate: Number(entry[0]),
           quantity: Number(entry[2])
