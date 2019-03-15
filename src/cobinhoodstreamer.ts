@@ -1,11 +1,7 @@
 import Streamer from './streamer'
 import CobinhoodConnection, { CobinhoodConnectionTypes } from './cobinhoodconnection'
 import { MarketName } from './market'
-import { OrderBookState } from './orderbook'
-
-function cobinhoodPairToStandardPair (market: MarketName): MarketName {
-  return market.replace('-', '/')
-}
+import { OrderBookState, OrderBookStateUpdate } from './orderbook'
 
 export default class CobinhoodStreamer extends Streamer {
   constructor () { super('cobinhood') }
@@ -43,6 +39,31 @@ export default class CobinhoodStreamer extends Streamer {
       }
 
       this.markets[market].onInitialState(orderBook)
+    }
+  }
+
+  private onOrderUpdate (market: MarketName, payload: CobinhoodConnectionTypes.OrderBookData): void {
+    if (this.haveMarket(market)) {
+      const {asks, bids} = payload
+      const orderBookUpdate: OrderBookStateUpdate = { asks: [], bids: [] }
+
+      for (const entry of asks) {
+        orderBookUpdate['asks'].push({
+          type: 3,
+          rate: Number(entry[0]),
+          quantity: Number(entry[2])
+        })
+      }
+
+      for (const entry  of bids) {
+        orderBookUpdate['bids'].push({
+          type: 3,
+          rate: Number(entry[0]),
+          quantity: Number(entry[2])
+        })
+      }
+
+      this.markets[market].onUpdateExchangeState(orderBookUpdate)
     }
   }
 
