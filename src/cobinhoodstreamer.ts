@@ -13,14 +13,12 @@ export default class CobinhoodStreamer extends Streamer {
   setupConn (): void {
     this.conn = new CobinhoodConnection()
 
-    this.conn.on('updateExchangeState', (message: CobinhoodConnectionTypes.Message) => {
-      const marketName = cobinhoodPairToStandardPair(message.h[0].split('.')[1])
-
-      if (message.h['2'] == 's') {
-        this.onInitialState(marketName, message.d)
+    this.conn.on('updateExchangeState', (updateType: CobinhoodConnectionTypes.UpdateType, marketName: MarketName, message: CobinhoodConnectionTypes.OrderBookData) => {
+      if (updateType == 'initial') {
+        this.onInitialState(marketName, message)
       }
-
-      if (message.h['2'] == 'u') {
+      if (updateType == 'delta') {
+        this.onOrderUpdate(marketName, message)
       }
     })
   }

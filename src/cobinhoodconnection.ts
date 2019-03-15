@@ -15,7 +15,7 @@ export namespace CobinhoodConnectionTypes {
   export type UpdateType = 'initial' | 'delta'
 
   export type Message = {
-    h: [string, string, 'subscribed' | 's' | 'u'],
+    h: [string, string, 'subscribed' | 's' | 'u' | 'pong'],
     d: OrderBookData
   }
 }
@@ -68,7 +68,21 @@ export default class CobinhoodConnection extends Connection {
   }
 
   private onMessage(message: CobinhoodConnectionTypes.Message) {
-    this.emit('updateExchangeState', message)
+    this.alive()
+    const market = message.h[0].split('.')[1].replace('_', '/')
+    const type = message.h[2]
+
+    switch (type) {
+      case 's':
+        this.emit('updateExchangeState', 'initial', market, message.d)
+        break
+      case 'u':
+        this.emit('updateExchangeState', 'delta', market, message.d)
+        break
+      case 'pong':
+        logger.debug('[COBINHOOD] Ponged')
+        break
+    }
   }
 
   subscribe (pair: string): Promise<void> {
