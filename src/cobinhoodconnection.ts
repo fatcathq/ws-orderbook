@@ -5,23 +5,19 @@ import Connection from './connection'
 const BASE_URL = 'wss://ws.cobinhood.com/v2/ws'
 
 export namespace CobinhoodConnectionTypes {
-  type OrderBookEntry = {
-    price: string,
-    count: string,
-    size: string
-  }
+  type OrderBookEntry = [string, string, string]
 
-  export type Snapshot = {
-    asks: Array<OrderBookEntry>,
-    bids: Array<OrderBookEntry>
-  }
-
-  export type OrderBookUpdate = {
+  export type OrderBookData = {
     asks: Array<OrderBookEntry>,
     bids: Array<OrderBookEntry>
   }
 
   export type UpdateType = 'initial' | 'delta'
+
+  export type Message = {
+    h: [string, string, 'subscribed' | 's' | 'u'],
+    d: OrderBookData
+  }
 }
 
 export default class CobinhoodConnection extends Connection {
