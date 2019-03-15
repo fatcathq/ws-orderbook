@@ -42,7 +42,7 @@ export default class CobinhoodConnection extends Connection {
       this.connectionOpened()
     })
 
-    this.client.on('message', this.onMessage)
+    this.client.on('message', (m: string) => this.onMessage(JSON.parse(m)))
   }
 
   protected disconnect (): Promise<void> {
@@ -67,7 +67,7 @@ export default class CobinhoodConnection extends Connection {
     return Promise.resolve()
   }
 
-  private onMessage(message: any) {
+  private onMessage(message: CobinhoodConnectionTypes.Message) {
     this.emit('updateExchangeState', message)
   }
 
