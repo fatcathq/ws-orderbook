@@ -3,6 +3,7 @@ import WebSocket from 'ws'
 import Connection from './connection'
 
 const BASE_URL = 'wss://ws.cobinhood.com/v2/ws'
+const PING_INTERVAL = 1000 * 20
 
 export namespace CobinhoodConnectionTypes {
   type OrderBookEntry = [string, string, string]
@@ -39,6 +40,7 @@ export default class CobinhoodConnection extends Connection {
         this.subscribe(pair)
       })
 
+      this.setPingInterval(PING_INTERVAL)
       this.connectionOpened()
     })
 
@@ -91,13 +93,21 @@ export default class CobinhoodConnection extends Connection {
     this.client.send(JSON.stringify({
       action: 'subscribe',
       type: 'order-book',
-      trading_pair_id: pair,
-      precision: '1E-7'
+      trading_pair_id: pair
     }))
 
     return Promise.resolve()
   }
 
+  private setPingInterval(ms: number) {
+    setInterval(this.ping, ms)
+  }
+
+  private ping () {
+    this.client.send(JSON.stringify({
+      action: 'ping'
+    }))
+  }
 
   call (): Promise<void> {
     throw new Error('[COBINHOOD]: call() implemented')
