@@ -40,6 +40,7 @@ export default class CobinhoodConnection extends Connection {
         this.subscribe(pair)
       })
 
+      this.alive()
       this.setPingInterval(PING_INTERVAL)
       this.connectionOpened()
     })
