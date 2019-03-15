@@ -101,7 +101,7 @@ export default class CobinhoodConnection extends Connection {
   }
 
   private setPingInterval(ms: number) {
-    setInterval(this.ping, ms)
+    setInterval(this.ping.bind(this), ms)
   }
 
   private ping () {
