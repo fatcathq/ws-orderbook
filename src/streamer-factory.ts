@@ -4,6 +4,7 @@ import BittrexStreamer from './bittrexstreamer'
 import PoloniexStreamer from './poloniexstreamer'
 import KrakenStreamer from './krakenstreamer'
 import BinanceStreamer from './binancestreamer'
+import CobinhoodStreamer from './cobinhoodstreamer'
 
 export default function streamerFactory (exchangeName: string): Streamer {
   logger.debug(`New ${exchangeName} streamer`)
@@ -12,6 +13,8 @@ export default function streamerFactory (exchangeName: string): Streamer {
       return new BittrexStreamer()
     case 'poloniex':
       return new PoloniexStreamer()
+    case 'cobinhood':
+      return new CobinhoodStreamer()
     case 'kraken':
       return new KrakenStreamer()
     case 'binance':
