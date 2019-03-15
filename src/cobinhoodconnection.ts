@@ -39,7 +39,7 @@ export default class CobinhoodConnection extends Connection {
       logger.debug(`[COBINHOOD]: Connection open`)
       // TODO: Error handling
       this.subscriptions.forEach(pair => {
-        logger.debug(`[KRAKEN]: Resubscribing to ${pair}`)
+        logger.debug(`[COBINHOOD]: Resubscribing to ${pair}`)
         this.subscribe(pair)
       })
 
@@ -51,7 +51,7 @@ export default class CobinhoodConnection extends Connection {
 
   protected disconnect (): Promise<void> {
     if (this.client && this.client.readyState !== WebSocket.CLOSED) {
-      logger.debug('[KRAKEN]: Closing previous connection')
+      logger.debug('[COBINHOOD]: Closing previous connection')
 
       return new Promise((resolve) => {
         try {
@@ -90,6 +90,6 @@ export default class CobinhoodConnection extends Connection {
 
 
   call (): Promise<void> {
-    throw new Error('[BINANCE]: call() implemented')
+    throw new Error('[COBINHOOD]: call() implemented')
   }
 }
