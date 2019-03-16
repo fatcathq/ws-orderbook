@@ -16,7 +16,7 @@ export namespace CobinhoodConnectionTypes {
   export type UpdateType = 'initial' | 'delta'
 
   export type Message = {
-    h: [string, string, 'subscribed' | 's' | 'u' | 'pong'],
+    h: [string, string, 'subscribed' | 's' | 'u' | 'pong' | 'error'],
     d: OrderBookData
   }
 }
@@ -72,8 +72,14 @@ export default class CobinhoodConnection extends Connection {
 
   private onMessage(message: CobinhoodConnectionTypes.Message) {
     this.alive()
-    const market = message.h[0].split('.')[1].replace('_', '/')
+
     const type = message.h[2]
+    if (type == 'error') {
+      logger.warn(`Message was errored ${JSON.stringify(message)}`)
+      return
+    }
+
+    const market = message.h[0].split('.')[1].replace('_', '/')
 
     switch (type) {
       case 's':
