@@ -8,6 +8,7 @@ export default class CobinhoodStreamer extends Streamer {
 
   setupConn (): void {
     this.conn = new CobinhoodConnection()
+    this.conn.setMaxListeners(100)
 
     this.conn.on('updateExchangeState', (updateType: CobinhoodConnectionTypes.UpdateType, marketName: MarketName, message: CobinhoodConnectionTypes.OrderBookData) => {
       if (updateType == 'initial') {
