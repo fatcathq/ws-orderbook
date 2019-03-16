@@ -69,6 +69,8 @@ export default class CobinhoodStreamer extends Streamer {
   }
 
   subscribeToMarket (market: MarketName): Promise<void> {
-    return this.conn.subscribe(market)
+    const marketNameToCobinhood =  (market: MarketName) => market.replace('/', '-')
+
+    return this.conn.subscribe(marketNameToCobinhood(market))
   }
 }
