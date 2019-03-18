@@ -79,7 +79,7 @@ export default class CobinhoodConnection extends Connection {
       return
     }
 
-    const market = message.h[0].split('.')[1].replace('_', '/')
+    const market = message.h[0].split('.')[1].replace('-', '/')
 
     switch (type) {
       case 's':
