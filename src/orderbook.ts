@@ -49,7 +49,7 @@ export default class OrderBook {
 
         this.store[orderEvent.rate].quantity += orderEvent.quantity
 
-        if (this.store[orderEvent.rate].quantity == 0) {
+        if (this.store[orderEvent.rate].quantity <= 0) {
           delete this.store[orderEvent.rate]
         }
 
