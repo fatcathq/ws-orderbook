@@ -2,6 +2,8 @@ type OrderEventType = 0 | 1 | 2 | 3
 type Rate = number
 type Quantity = number
 
+const EPSILON = 1e-8
+
 export type OrderBookRecord = {
   rate: Rate,
   quantity: Quantity
@@ -47,9 +49,10 @@ export default class OrderBook {
           break
         }
 
+        //Error accumulation
         this.store[orderEvent.rate].quantity += orderEvent.quantity
 
-        if (this.store[orderEvent.rate].quantity <= 0) {
+        if (this.store[orderEvent.rate].quantity <= EPSILON) {
           delete this.store[orderEvent.rate]
         }
 
