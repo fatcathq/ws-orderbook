@@ -49,7 +49,7 @@ export default class OrderBook {
           break
         }
 
-        //Error accumulation
+        // Error accumulation
         this.store[orderEvent.rate].quantity += orderEvent.quantity
 
         if (this.store[orderEvent.rate].quantity <= EPSILON) {

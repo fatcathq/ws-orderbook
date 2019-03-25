@@ -11,10 +11,10 @@ export default class CobinhoodStreamer extends Streamer {
     this.conn.setMaxListeners(100)
 
     this.conn.on('updateExchangeState', (updateType: CobinhoodConnectionTypes.UpdateType, marketName: MarketName, message: CobinhoodConnectionTypes.OrderBookData) => {
-      if (updateType == 'initial') {
+      if (updateType === 'initial') {
         this.onInitialState(marketName, message)
       }
-      if (updateType == 'delta') {
+      if (updateType === 'delta') {
         this.onOrderUpdate(marketName, message)
       }
     })
@@ -22,7 +22,7 @@ export default class CobinhoodStreamer extends Streamer {
 
   private onInitialState (market: MarketName, payload: CobinhoodConnectionTypes.OrderBookData): void {
     if (this.haveMarket(market)) {
-      const {asks, bids} = payload
+      const { asks, bids } = payload
       const orderBook: OrderBookState = { asks: [], bids: [] }
 
       for (const entry of asks) {
@@ -45,7 +45,7 @@ export default class CobinhoodStreamer extends Streamer {
 
   private onOrderUpdate (market: MarketName, payload: CobinhoodConnectionTypes.OrderBookData): void {
     if (this.haveMarket(market)) {
-      const {asks, bids} = payload
+      const { asks, bids } = payload
       const orderBookUpdate: OrderBookStateUpdate = { asks: [], bids: [] }
 
       for (const entry of asks) {
@@ -56,7 +56,7 @@ export default class CobinhoodStreamer extends Streamer {
         })
       }
 
-      for (const entry  of bids) {
+      for (const entry of bids) {
         orderBookUpdate['bids'].push({
           type: 3,
           rate: Number(entry[0]),
@@ -69,7 +69,7 @@ export default class CobinhoodStreamer extends Streamer {
   }
 
   subscribeToMarket (market: MarketName): Promise<void> {
-    const marketNameToCobinhood =  (market: MarketName) => market.replace('/', '-')
+    const marketNameToCobinhood = (market: MarketName) => market.replace('/', '-')
 
     return this.conn.subscribe(marketNameToCobinhood(market))
   }
