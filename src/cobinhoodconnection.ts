@@ -24,7 +24,7 @@ export namespace CobinhoodConnectionTypes {
 export default class CobinhoodConnection extends Connection {
   private client!: WebSocket
   private subscriptions: Set<string> = new Set()
-  private pingInterval: any = null
+  private pingTimer: NodeJS.Timer | null = null
 
   constructor () { super('cobinhood') }
 
@@ -77,6 +77,7 @@ export default class CobinhoodConnection extends Connection {
     const type = message.h[2]
     if (type === 'error') {
       logger.warn(`Message was errored ${JSON.stringify(message)}`)
+      this.refreshConnection('message error')
       return
     }
 
@@ -108,11 +109,11 @@ export default class CobinhoodConnection extends Connection {
   }
 
   private setPingInterval (ms: number): void {
-    if (this.pingInterval) {
-      clearInterval(this.pingInterval)
+    if (this.pingTimer) {
+      clearInterval(this.pingTimer)
     }
 
-    this.pingInterval = setInterval(this.ping.bind(this), ms)
+    this.pingTimer = setInterval(this.ping.bind(this), ms)
   }
 
   private ping (): void {
