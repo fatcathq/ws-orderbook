@@ -4,6 +4,7 @@ import Connection from './connection'
 
 const BASE_URL = 'wss://ws.cobinhood.com/v2/ws'
 const PING_INTERVAL = 1000 * 20
+const HEARTBEAT_INTERVAL = 1000 * 30
 
 export namespace CobinhoodConnectionTypes {
   type OrderBookEntry = [string, string, string]
@@ -26,7 +27,7 @@ export default class CobinhoodConnection extends Connection {
   private subscriptions: Set<string> = new Set()
   private pingTimer: NodeJS.Timer | null = null
 
-  constructor () { super('cobinhood') }
+  constructor () { super('cobinhood', HEARTBEAT_INTERVAL) }
 
   protected connect (): void {
     logger.debug(`[COBINHOOD]: Connecting to socket`)
