@@ -24,6 +24,7 @@ export namespace CobinhoodConnectionTypes {
 export default class CobinhoodConnection extends Connection {
   private client!: WebSocket
   private subscriptions: Set<string> = new Set()
+  private pingInterval: any = null
 
   constructor () { super('cobinhood') }
 
@@ -107,7 +108,11 @@ export default class CobinhoodConnection extends Connection {
   }
 
   private setPingInterval (ms: number): void {
-    setInterval(this.ping.bind(this), ms)
+    if (this.pingInterval) {
+      clearInterval(this.pingInterval)
+    }
+
+    this.pingInterval = setInterval(this.ping.bind(this), ms)
   }
 
   private ping (): void {
