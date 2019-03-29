@@ -70,11 +70,11 @@ export default class CobinhoodConnection extends Connection {
     return Promise.resolve()
   }
 
-  private onMessage(message: CobinhoodConnectionTypes.Message) {
+  private onMessage (message: CobinhoodConnectionTypes.Message): void {
     this.alive()
 
     const type = message.h[2]
-    if (type == 'error') {
+    if (type === 'error') {
       logger.warn(`Message was errored ${JSON.stringify(message)}`)
       return
     }
@@ -106,11 +106,11 @@ export default class CobinhoodConnection extends Connection {
     return Promise.resolve()
   }
 
-  private setPingInterval(ms: number) {
+  private setPingInterval (ms: number): void {
     setInterval(this.ping.bind(this), ms)
   }
 
-  private ping () {
+  private ping (): void {
     this.client.send(JSON.stringify({
       action: 'ping'
     }))
