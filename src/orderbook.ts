@@ -1,3 +1,5 @@
+import Decimal from 'decimal.js'
+
 type OrderEventType = 0 | 1 | 2 | 3
 type Rate = number
 type Quantity = number
@@ -50,7 +52,7 @@ export default class OrderBook {
         }
 
         // Error accumulation
-        this.store[orderEvent.rate].quantity += orderEvent.quantity
+        this.store[orderEvent.rate].quantity = new Decimal(this.store[orderEvent.rate].quantity).add(orderEvent.quantity).toNumber()
 
         if (this.store[orderEvent.rate].quantity <= EPSILON) {
           delete this.store[orderEvent.rate]
