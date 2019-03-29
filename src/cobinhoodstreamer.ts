@@ -49,7 +49,7 @@ export default class CobinhoodStreamer extends Streamer {
       const orderBookUpdate: OrderBookStateUpdate = { asks: [], bids: [] }
 
       for (const entry of asks) {
-        orderBookUpdate['asks'].push({
+        orderBookUpdate.asks.push({
           type: 3,
           rate: Number(entry[0]),
           quantity: Number(entry[2])
@@ -57,7 +57,7 @@ export default class CobinhoodStreamer extends Streamer {
       }
 
       for (const entry of bids) {
-        orderBookUpdate['bids'].push({
+        orderBookUpdate.bids.push({
           type: 3,
           rate: Number(entry[0]),
           quantity: Number(entry[2])
