@@ -1,10 +1,20 @@
 import WebSocket from 'ws'
 import logger from 'logger'
 import Connection from './connection'
-const { CWStreamClient } = require('cw-stream-client')
+import axios from 'axios'
+const { CWStreamClient, ERROR } = require('cw-stream-client')
 // const { StreamMessage } = require('../node_modules/cw-stream-client/dist/proto-builders.js')
 
 const HEARTBEAT_TIMEOUT_MS = 1500
+
+export namespace CryptowatchConnectionTypes {
+  export type Market = {
+    id: number,
+    exchange: string,
+    pair: string, active: boolean,
+    route: string
+  }
+}
 
 export default class CryptowatchConnection extends Connection {
   private client!: any
