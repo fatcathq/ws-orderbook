@@ -1,6 +1,10 @@
-type OrderEventType = 0 | 1 | 2
+import Decimal from 'decimal.js'
+
+type OrderEventType = 0 | 1 | 2 | 3
 type Rate = number
 type Quantity = number
+
+const EPSILON = 1e-8
 
 export type OrderBookRecord = {
   rate: Rate,
@@ -37,6 +41,23 @@ export default class OrderBook {
         if (this.store.hasOwnProperty(orderEvent.rate)) {
           delete this.store[orderEvent.rate]
         }
+        break
+      case 3: // delta
+        if (!this.store.hasOwnProperty(orderEvent.rate)) {
+          this.store[orderEvent.rate] = {
+            rate: orderEvent.rate,
+            quantity: orderEvent.quantity
+          }
+          break
+        }
+
+        // Error accumulation
+        this.store[orderEvent.rate].quantity = new Decimal(this.store[orderEvent.rate].quantity).add(orderEvent.quantity).toNumber()
+
+        if (this.store[orderEvent.rate].quantity <= EPSILON) {
+          delete this.store[orderEvent.rate]
+        }
+
         break
       default:
         console.log('unknown type given', orderEvent.type)
