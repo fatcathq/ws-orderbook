@@ -6,26 +6,34 @@ import { OrderBookState, OrderBookStateUpdate } from './orderbook'
 
 let hasInitialState = false
 export default class CryptowatchStreamer extends Streamer {
-  constructor () {
-    super('cryptowatch')
+  private cwMarket: Map<string, string> = new Map()
+  constructor (cryptowatchExchange: string) {
+    super(cryptowatchExchange)
   }
 
   setupConn (): void {
-    this.conn = new CryptowatchConnection()
+    this.conn = new CryptowatchConnection(this.exchangeName)
 
-    this.conn.on('updateExchangeState', (message: any) => {
-      const market = 'ETH/BTC'
-      console.log(market)
+    this.conn.on('connectionReset', () => {
+      hasInitialState = false
+    })
+
+    this.conn.on('updateExchangeState', (message: any, cwMarket: MarketName) => {
+      const market: MarketName | undefined = this.cwMarket.get(cwMarket)
+      if (typeof market === 'undefined') {
+        logger.warn(`Couldn't find ${cwMarket}`)
+        return
+      }
 
       if (Object.keys(message).includes('orderBookUpdate')) {
-        console.log('snapshot')
-        console.log(message.orderBookUpdate.seqNum)
         this.onInitialState(market, message.orderBookUpdate)
         hasInitialState = true
       } else if (Object.keys(message).includes('orderBookDeltaUpdate') && hasInitialState) {
         this.onOrderUpdate(market, message.orderBookDeltaUpdate)
+      } else if (!hasInitialState) {
+        logger.debug(`No initial state for ${market} on ${this.exchangeName}`)
       } else {
-        logger.warn(`Unrecognized Kraken payload: ${JSON.stringify(message[2])}`)
+        logger.warn(`Unrecognized payload: ${JSON.stringify(message)}`)
       }
     })
   }
@@ -104,6 +112,9 @@ export default class CryptowatchStreamer extends Streamer {
   }
 
   subscribeToMarket (market: MarketName): Promise<void> {
-    return this.conn.subscribe(market)
+    const cwMarket = market.replace('/', '').toLowerCase()
+    this.cwMarket.set(cwMarket, market)
+
+    return this.conn.subscribe(cwMarket)
   }
 }
