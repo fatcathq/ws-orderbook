@@ -21,6 +21,8 @@ export default class CryptowatchConnection extends Connection {
   private subscriptions: Set<string> = new Set()
   private subscribedMarketIds: Map<number, string> = new Map()
   private lastSeqNum: Map<number, number> = new Map()
+  private locks: Array<Function> = []
+  private marketsLocked: boolean = false
 
   constructor (private readonly exchange: string) { super(`cryptowatch`, HEARTBEAT_TIMEOUT_MS) }
 
@@ -79,7 +81,32 @@ export default class CryptowatchConnection extends Connection {
     this.emit('updateExchangeState', marketData, market)
   }
 
+  private lockMarkets (): boolean {
+    if (this.marketsLocked) {
+      return false
+    }
+    return this.marketsLocked = true
+  }
+
+  private async marketsLock (): Promise<void> {
+    if (this.marketsLocked) {
+      return new Promise(resolve => this.locks.push(resolve))
+    }
+  }
+
+  private unlockMarkets (): void {
+    for (const unlock of this.locks) {
+      unlock()
+    }
+    this.locks = []
+    this.marketsLocked = false
+  }
+
   private async markets (): Promise<Map<string, Map<string, CryptowatchConnectionTypes.Market>>> {
+    if (!this.lockMarkets()) {
+      await this.marketsLock()
+    }
+
     if (!this.cachedMarkets) {
       this.cachedMarkets = new Map()
       const markets: Array<CryptowatchConnectionTypes.Market> = (await axios.get('https://api.cryptowat.ch/markets')).data.result
@@ -97,6 +124,7 @@ export default class CryptowatchConnection extends Connection {
         this.cachedMarkets.set(market.exchange, exchange)
       }
     }
+    this.unlockMarkets()
 
     return this.cachedMarkets
   }
