@@ -118,7 +118,7 @@ export default class CobinhoodConnection extends Connection {
   }
 
   private ping (): void {
-    if (this.client.readyState === WebSocket.CLOSED) {
+    if (this.client.readyState !== WebSocket.OPEN) {
       logger.warn('Connection seems to be closed during ping')
       return
     }
