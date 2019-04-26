@@ -74,7 +74,7 @@ export default class BittrexConnection extends Connection {
       this.refreshConnection('connectionerror')
     }
     this.client.serviceHandlers.disconnected = () => {
-      logger.error('[BITTREX]: Client disconnected')
+      logger.error(`[BITTREX]: Client disconnected. State: ${this.client.connection.state}`)
       this.refreshConnection('disconnected')
     }
 
@@ -96,7 +96,8 @@ export default class BittrexConnection extends Connection {
   protected async disconnect (): Promise<void> {
     logger.debug('[BITTREX]: Disconnecting')
     const disconnectPromise = new Promise((resolve) => {
-      if (this.isConnected) {
+      // TODO: Figure out state codes
+      if (this.isConnected && this.client.connection.state !== 5) {
         this.client.serviceHandlers.disconnected = resolve
         this.client.end()
       } else {
