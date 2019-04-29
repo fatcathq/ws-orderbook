@@ -25,6 +25,8 @@ export default function streamerFactory (exchangeName: string): Streamer {
     case 'binance':
       // return new BinanceStreamer()
       return new CryptowatchStreamer('binance')
+    case 'bitfinex':
+      return new CryptowatchStreamer('bitfinex')
     default:
       throw new Error(`No streamer for ${exchangeName}`)
   }
