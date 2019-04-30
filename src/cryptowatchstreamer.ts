@@ -3,6 +3,7 @@ import Streamer from './streamer'
 import CryptowatchConnection from './cryptowatchconnection'
 import { MarketName } from './market'
 import { OrderBookState, OrderBookStateUpdate } from './orderbook'
+import Decimal from 'decimal.js'
 
 let hasInitialState = false
 export default class CryptowatchStreamer extends Streamer {
@@ -46,16 +47,16 @@ export default class CryptowatchStreamer extends Streamer {
 
       for (const order of asks) {
         orderBook.asks.push({
-          rate: +order.price,
-          quantity: +order.amount
+          rate: new Decimal(order.priceStr),
+          quantity: new Decimal(order.amountStr)
         })
       }
 
       // TODO: Improve this part
       for (const order of bids) {
         orderBook.bids.push({
-          rate: +order.price,
-          quantity: +order.amount
+          rate: new Decimal(order.priceStr),
+          quantity: new Decimal(order.amountStr)
         })
       }
 
@@ -68,8 +69,8 @@ export default class CryptowatchStreamer extends Streamer {
       const orderBookUpdate: OrderBookStateUpdate = { asks: [], bids: [] }
 
       for (const order of updates.bids.set) {
-        const rate = +order.price
-        const quantity = +order.amount
+        const rate = new Decimal(order.priceStr)
+        const quantity = new Decimal(order.amountStr)
         orderBookUpdate.bids.push({
           type: 2,
           rate: rate,
@@ -81,13 +82,13 @@ export default class CryptowatchStreamer extends Streamer {
         orderBookUpdate.bids.push({
           type: 1,
           rate: rate,
-          quantity: 0
+          quantity: new Decimal(0)
         })
       }
 
       for (const order of updates.asks.set) {
-        const rate = +order.price
-        const quantity = +order.amount
+        const rate = new Decimal(order.priceStr)
+        const quantity = new Decimal(order.amountStr)
         orderBookUpdate.asks.push({
           type: 2,
           rate: rate,
@@ -99,7 +100,7 @@ export default class CryptowatchStreamer extends Streamer {
         orderBookUpdate.asks.push({
           type: 1,
           rate: rate,
-          quantity: 0
+          quantity: new Decimal(0)
         })
       }
 

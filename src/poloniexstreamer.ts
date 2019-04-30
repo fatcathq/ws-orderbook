@@ -5,6 +5,7 @@ import { MarketName } from './market'
 import { OrderBookState, OrderBookStateUpdate } from './orderbook'
 const PoloniexMarkets: PoloniexPairChannels = require('../poloniexmarkets.json')
 import validateChannelIds from './poloniexpairsvalidator'
+import Decimal from 'decimal.js'
 
 validateChannelIds().catch((err: any) => {
   logger.error(err.message, err)
@@ -23,7 +24,7 @@ namespace PoloniexConnectionTypes {
     { [index: string]: Quantity }, // asks
     { [index: string]: Quantity } // bids
   ]
-  export type InitialState = ['i', { currencyPair: string, orderBook: Array<OrderBookState> }]
+  export type InitialState = ['i', { currencyPair: string, orderBook: OrderBookState }]
   export type OrderUpdate = ['o' | 't', OrderType, Rate, Quantity]
 }
 
@@ -91,15 +92,15 @@ export default class PoloniexStreamer extends Streamer {
 
       for (const rate in asks) {
         orderBook.asks.push({
-          rate: +rate,
-          quantity: +asks[rate]
+          rate: new Decimal(rate),
+          quantity: new Decimal(asks[rate])
         })
       }
 
       for (const rate in bids) {
         orderBook.bids.push({
-          rate: +rate,
-          quantity: +bids[rate]
+          rate: new Decimal(rate),
+          quantity: new Decimal(bids[rate])
         })
       }
 
@@ -117,11 +118,11 @@ export default class PoloniexStreamer extends Streamer {
           continue
         }
         const orderSide = +updateEntry[1] === 0 ? 'asks' : 'bids'
-        const rate = +updateEntry[2]
-        const quantity = +updateEntry[3]
+        const rate = new Decimal(updateEntry[2])
+        const quantity = new Decimal(updateEntry[3])
 
         orderBookUpdate[orderSide].push({
-          type: quantity > 0 ? 2 : 1,
+          type: quantity.gt(0) ? 2 : 1,
           rate: rate,
           quantity: quantity
         })

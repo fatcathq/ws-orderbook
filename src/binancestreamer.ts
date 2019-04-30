@@ -3,6 +3,7 @@ import Streamer from './streamer'
 import BinanceConnection, { BinanceConnectionTypes } from './binanceconnection'
 import { MarketName } from './market'
 import { OrderBookState, OrderBookStateUpdate } from './orderbook'
+import Decimal from 'decimal.js'
 
 type Side = 'asks' | 'bids'
 
@@ -54,8 +55,8 @@ export default class BinanceStreamer extends Streamer {
       // TS
       for (const order of snapshot[side as Side]) {
         orderBook[side as Side].push({
-          rate: +order[0],
-          quantity: +order[1]
+          rate: new Decimal(order[0]),
+          quantity: new Decimal(order[1])
         })
       }
     }
@@ -70,22 +71,22 @@ export default class BinanceStreamer extends Streamer {
 
     const orderBookUpdate: OrderBookStateUpdate = { asks: [], bids: [] }
     for (const updateEntry of update.a) {
-      const rate = +updateEntry[0]
-      const quantity = +updateEntry[1]
+      const rate = new Decimal(updateEntry[0])
+      const quantity = new Decimal(updateEntry[1])
 
       orderBookUpdate.asks.push({
-        type: quantity > 0 ? 2 : 1,
+        type: quantity.gt(0) ? 2 : 1,
         rate,
         quantity
       })
     }
 
     for (const updateEntry of update.b) {
-      const rate = +updateEntry[0]
-      const quantity = +updateEntry[1]
+      const rate = new Decimal(updateEntry[0])
+      const quantity = new Decimal(updateEntry[1])
 
       orderBookUpdate.bids.push({
-        type: quantity > 0 ? 2 : 1,
+        type: quantity.gt(0) ? 2 : 1,
         rate,
         quantity
       })

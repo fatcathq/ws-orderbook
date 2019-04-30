@@ -2,6 +2,7 @@ import Streamer from './streamer'
 import CobinhoodConnection, { CobinhoodConnectionTypes } from './cobinhoodconnection'
 import { MarketName } from './market'
 import { OrderBookState, OrderBookStateUpdate } from './orderbook'
+import Decimal from 'decimal.js'
 
 export default class CobinhoodStreamer extends Streamer {
   constructor () { super('cobinhood') }
@@ -27,15 +28,15 @@ export default class CobinhoodStreamer extends Streamer {
 
       for (const entry of asks) {
         orderBook.asks.push({
-          rate: Number(entry[0]),
-          quantity: Number(entry[2])
+          rate: new Decimal(entry[0]),
+          quantity: new Decimal(entry[2])
         })
       }
 
       for (const entry of bids) {
         orderBook.bids.push({
-          rate: Number(entry[0]),
-          quantity: Number(entry[2])
+          rate: new Decimal(entry[0]),
+          quantity: new Decimal(entry[2])
         })
       }
 
@@ -51,16 +52,16 @@ export default class CobinhoodStreamer extends Streamer {
       for (const entry of asks) {
         orderBookUpdate.asks.push({
           type: 3,
-          rate: Number(entry[0]),
-          quantity: Number(entry[2])
+          rate: new Decimal(entry[0]),
+          quantity: new Decimal(entry[2])
         })
       }
 
       for (const entry of bids) {
         orderBookUpdate.bids.push({
           type: 3,
-          rate: Number(entry[0]),
-          quantity: Number(entry[2])
+          rate: new Decimal(entry[0]),
+          quantity: new Decimal(entry[2])
         })
       }
 

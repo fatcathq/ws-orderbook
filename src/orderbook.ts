@@ -1,8 +1,8 @@
 import Decimal from 'decimal.js'
 
 type OrderEventType = 0 | 1 | 2 | 3
-type Rate = number
-type Quantity = number
+type Rate = Decimal
+type Quantity = Decimal
 
 const EPSILON = 1e-8
 
@@ -32,19 +32,19 @@ export default class OrderBook {
     switch (orderEvent.type) {
       case 0: // new
       case 2: // update
-        this.store[orderEvent.rate] = {
+        this.store[orderEvent.rate.toString()] = {
           rate: orderEvent.rate,
           quantity: orderEvent.quantity
         }
         break
       case 1: // delete
-        if (this.store.hasOwnProperty(orderEvent.rate)) {
-          delete this.store[orderEvent.rate]
+        if (this.store.hasOwnProperty(orderEvent.rate.toString())) {
+          delete this.store[orderEvent.rate.toString()]
         }
         break
       case 3: // delta
-        if (!this.store.hasOwnProperty(orderEvent.rate)) {
-          this.store[orderEvent.rate] = {
+        if (!this.store.hasOwnProperty(orderEvent.rate.toString())) {
+          this.store[orderEvent.rate.toString()] = {
             rate: orderEvent.rate,
             quantity: orderEvent.quantity
           }
@@ -52,10 +52,10 @@ export default class OrderBook {
         }
 
         // Error accumulation
-        this.store[orderEvent.rate].quantity = new Decimal(this.store[orderEvent.rate].quantity).add(orderEvent.quantity).toNumber()
+        this.store[orderEvent.rate.toString()].quantity = this.store[orderEvent.rate.toString()].quantity.add(orderEvent.quantity)
 
-        if (this.store[orderEvent.rate].quantity <= EPSILON) {
-          delete this.store[orderEvent.rate]
+        if (this.store[orderEvent.rate.toString()].quantity.lte(EPSILON)) {
+          delete this.store[orderEvent.rate.toString()]
         }
 
         break

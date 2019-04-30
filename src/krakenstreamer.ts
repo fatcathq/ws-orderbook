@@ -3,6 +3,7 @@ import Streamer from './streamer'
 import KrakenConnection from './krakenconnection'
 import { MarketName } from './market'
 import { OrderBookState, OrderBookStateUpdate } from './orderbook'
+import Decimal from 'decimal.js'
 
 namespace KrakenConnectionTypes {
   export type Channel = number
@@ -59,16 +60,16 @@ export default class KrakenStreamer extends Streamer {
 
       for (const order of asks) {
         orderBook.asks.push({
-          rate: +order[0],
-          quantity: +order[1]
+          rate: new Decimal(order[0]),
+          quantity: new Decimal(order[1])
         })
       }
 
       // TODO: Improve this part
       for (const order of bids) {
         orderBook.bids.push({
-          rate: +order[0],
-          quantity: +order[1]
+          rate: new Decimal(order[0]),
+          quantity: new Decimal(order[1])
         })
       }
 
@@ -83,11 +84,11 @@ export default class KrakenStreamer extends Streamer {
       const updateEntries = updateSide === 'asks' ? updates.a : updates.b
 
       for (const updateEntry of updateEntries) {
-        const rate = +updateEntry[0]
-        const quantity = +updateEntry[1]
+        const rate = new Decimal(updateEntry[0])
+        const quantity = new Decimal(updateEntry[1])
 
         orderBookUpdate[updateSide].push({
-          type: quantity > 0 ? 2 : 1,
+          type: quantity.gt(0) ? 2 : 1,
           rate: rate,
           quantity: quantity
         })

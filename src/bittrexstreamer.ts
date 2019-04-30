@@ -3,13 +3,14 @@ import Streamer from './streamer'
 import BittrexConnection, { BittrexConnectionTypes } from './bittrexconnection'
 import { OrderBookState, OrderBookStateUpdate, OrderEvent, OrderBookRecord } from './orderbook'
 import { MarketName } from './market'
+import Decimal from 'decimal.js'
 
 const formatOrderKeys =
   ({ Rate, Quantity }: BittrexConnectionTypes.Order): OrderBookRecord =>
-    ({ rate: Rate, quantity: Quantity })
+    ({ rate: new Decimal(Rate), quantity: new Decimal(Quantity) })
 const formatOrderUpdateKeys =
   ({ Type, Rate, Quantity }: BittrexConnectionTypes.OrderUpdate): OrderEvent =>
-    ({ type: Type, rate: Rate, quantity: Quantity })
+    ({ type: Type, rate: new Decimal(Rate), quantity: new Decimal(Quantity) })
 
 export default class BittrexStreamer extends Streamer {
   constructor () {

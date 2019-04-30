@@ -11,8 +11,8 @@ const HEARTBEAT_TIMEOUT_MS = 2000
 
 export namespace BittrexConnectionTypes {
   export type Order = {
-    Rate: number,
-    Quantity: number
+    Rate: string,
+    Quantity: string
   }
 
   export interface OrderUpdate extends Order {
