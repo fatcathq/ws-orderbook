@@ -78,7 +78,7 @@ export default class CryptowatchStreamer extends Streamer {
         })
       }
 
-      for (const rate of updates.bids.remove) {
+      for (const rate of updates.bids.removeStr) {
         orderBookUpdate.bids.push({
           type: 1,
           rate: rate,
@@ -96,7 +96,7 @@ export default class CryptowatchStreamer extends Streamer {
         })
       }
 
-      for (const rate of updates.asks.remove) {
+      for (const rate of updates.asks.removeStr) {
         orderBookUpdate.asks.push({
           type: 1,
           rate: rate,
