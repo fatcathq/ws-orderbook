@@ -3,7 +3,7 @@ import EventEmitter from 'events'
 import delay from 'delay'
 
 const RECONNECT_DELAY = 100
-const DEFAULT_REFRESH_TIMEOUT = 1000 * 60 * 30 // every 30 mins
+const DEFAULT_REFRESH_TIMEOUT = 1000 * 60 * 10 // every 10 mins
 
 export default abstract class Connection extends EventEmitter {
   public awaitingClients: any[] = []
