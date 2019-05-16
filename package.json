@@ -5,21 +5,21 @@
   "main": "built/streamer-factory.js",
   "types": "ws-orderbook.d.ts",
   "dependencies": {
-    "@types/cheerio": "^0.22.10",
-    "@types/node": "^10.12.18",
+    "@types/cheerio": "^0.22.11",
+    "@types/node": "^10.14.6",
     "@types/ws": "^6.0.1",
     "axios": "^0.18.0",
-    "cheerio": "^1.0.0-rc.2",
-    "cloudscraper": "^1.4.1",
+    "cheerio": "^1.0.0-rc.3",
+    "cloudscraper": "^1.5.1",
     "cw-stream-client": "^1.0.1",
-    "decimal.js": "^10.1.1",
-    "delay": "^4.1.0",
+    "decimal.js": "^10.2.0",
+    "delay": "^4.2.0",
     "fs": "0.0.1-security",
     "logger": "git+ssh://git@gitlab.com/fatcathq/logger.git#master",
     "path": "^0.12.7",
     "signalr-client": "git+ssh://git@github.com/themicp/signalr-client-nodejs.git#package",
-    "winston": "^3.1.0",
-    "ws": "^6.1.2"
+    "winston": "^3.2.1",
+    "ws": "^6.2.1"
   },
   "scripts": {
     "build": "tsc -p .",
@@ -46,11 +46,11 @@
     "url": "https://gitlab.com/fatcathq/ws-orderbook"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.11",
-    "jest": "^24.5.0",
-    "ts-jest": "^24.0.0",
-    "tslint": "^5.12.0",
+    "@types/jest": "^24.0.13",
+    "jest": "^24.8.0",
+    "ts-jest": "^24.0.2",
+    "tslint": "^5.16.0",
     "tslint-config-standard": "^8.0.1",
-    "typescript": "^3.2.2"
+    "typescript": "^3.4.5"
   }
 }
